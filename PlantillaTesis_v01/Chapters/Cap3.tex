@@ -1,0 +1,15 @@
+\chapter{Herramientas}
+En este capítulo se describe las herramientas usadas en esta investigación y la dividiremos en dos secciones, la primera describirá herramientas para la construcción del entorno personalizado AIR HOCKEY y el agente robot Scara simulado, finalmente en la segunda se mostrarán herramientas relacionadas para poder construir la parte lógica que realice el control del agente.
+
+\section{Herramientas de Construcción de entorno Personalizado AIR HOCKEY}
+     \subsection{URDF - United Robotics Description Format}
+     Es un archivo escrito en formato en el marco de gramática XML y nos permite mediante etiquetas definir la forma visual de los componentes u objetos que necesitamos en nuestro entorno o robot, este formato nos permite poder crear enlaces entre componentes mediante la arquitectura de arbol, donde las ramas son las uniones y los nodos son los componentes. Además de esto las propiedades tales como color, friccion, inercia, colision de un objeto especifico deben ser incluidas en este archivo para poder ser cargados posteriormente por un simulador.
+    \subsection{PyBullet}
+    Es el simulador escogido en esta investigación y contiene un Motor de Físicas que pretende simular un entorno Físico Real, la razón de usar esta herramienta es debido a que podemos usar diversas funciones que nos permiten personalizar condiciones físicas, tales como inercia, fricción de superficies, gravedad, colisiones, entre otras. Por poner un ejemplo claro, en el juego real de AIR HOCKEY el disco de juego se mueve libremente gracias a una delgada película de aire que lo mantiene flotando y sin fricción, para abordar esta peculiaridad, podemos usar la propiedad Fricción Lateral del URDF cargado del tablero y setearlo a 0, de esta forma simplificamos la necesidad de modelar una película de aire y conseguir el mismo fenómeno.
+   
+\section{Herramientas de Construcción de Lógica de Agente}
+    \subsection{Pytorch}
+    Nos permite construir nuestra Arquitectura de Red Neuronal, será util para poder crear las redes neuronales de Críticos Gemelos.
+
+
+%\afterpage{\blankpage}

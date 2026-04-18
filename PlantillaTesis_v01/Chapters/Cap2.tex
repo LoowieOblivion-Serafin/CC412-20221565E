@@ -1,0 +1,299 @@
+
+
+\chapter{Estado del Arte}
+Suspendisse potenti. Maecenas eu diam sit amet metus vulputate commodo. Praesent dapibus vestibulum nulla. Etiam nec pretium ante. Praesent velit metus, lobortis eu ipsum sed, elementum interdum sem. Donec sed porttitor libero, a pretium lectus. Etiam commodo, ipsum eu venenatis commodo, eros nisl posuere purus, a ullamcorper magna nisl et justo. Donec ornare nisi sed sapien tempus molestie. In eget mi nisl. Nunc eget sapien lectus. Nulla egestas vehicula ante ut eleifend. Aenean lobortis, massa in porta rhoncus, enim sapien congue ex, quis venenatis ante elit id lacus. Nunc tellus nibh, ultrices non mauris non, varius laoreet lorem. 
+
+\section{El Entorno y el Agente}
+Proin aliquam vestibulum nibh eget aliquet. Nunc mattis, nisi sed maximus mattis, sem elit pretium nibh, et finibus erat libero id justo. Integer luctus, ex in congue elementum, turpis quam commodo sapien, at porta enim lectus vel purus. Proin a ultricies elit. Nullam nibh quam, vehicula et vehicula eu, consequat eu eros. 
+\subsection{Entorno: Air Hockey}
+Maecenas arcu ligula, semper ac ipsum ut, tempor ultrices quam. Aenean id ultricies mauris. Ut mattis enim a arcu sollicitudin, pharetra vehicula odio iaculis.  \cite{usaa 2022}.Maecenas vitae ultricies dui, vitae dignissim dolor. Sed pulvinar ullamcorper odio nec sagittis. Nullam congue velit sem, vitae fermentum felis vestibulum ut.  figura \ref{fig:air_hockey}. Cras ipsum justo, venenatis sit amet est laoreet, tempus facilisis leo. Integer blandit leo massa, a ullamcorper nisi semper quis. Fusce dapibus sit amet justo a luctus. Fusce nunc diam, commodo a porta et, elementum nec purus. Interdum et malesuada fames ac ante ipsum primis in faucibus. \cite{airhockey 1975},Ut pellentesque, augue pretium congue pretium, lorem neque vehicula mauris, interdum fermentum arcu leo viverra ipsum. Aenean pulvinar sem ligula, id lacinia erat volutpat in.  
+%Principalmente en nuestra investigación se plantea poder reemplazar los jugadores humanos por robots Scara, todo ello de forma simulada en el ambiente controlado PyBullet.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{Figures/airhockey_demostracion.jpg}
+\caption[Air Hockey]
+	{Vivamus vitae imperdiet tellus. In finibus tincidunt tempus. Phasellus porta mi eget ante imperdiet, in tincidunt sem pharetra. Vestibulum tincidunt nisi non porttitor auctor \cite{airhockey 1975}.}
+\label{fig:air_hockey}
+\end{figure}
+
+\subsection{Agente: Robot Scara}
+In vel massa gravida, semper sapien ac, vulputate ipsum. Pellentesque a libero nec libero sodales egestas. Integer in massa sodales, cursus nibh sit amet, tristique tortor. Nunc non gravida est. Nam imperdiet ultricies purus sed eleifend. Duis a rhoncus tortor, eget malesuada ex. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Nunc at tellus ac magna vestibulum consectetur luctus nec tellus. Cras eu scelerisque mauris, non suscipit velit. Nam malesuada dui eu odio laoreet cursus. Curabitur vulputate lacus et lacus interdum, a pretium purus rhoncus \cite{Reyes 2022}.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.45\textwidth]{Figures/scara.png}
+\caption[Robot Scara]
+	{Phasellus gravida dui dolor \cite{airhockey 1975}.}
+\label{fig:filtro}
+\end{figure}
+
+\subsubsection{Modelo de Cinemática Directa}
+Sed sollicitudin velit lorem, ac mollis felis tincidunt vel. Pellentesque tincidunt diam neque, sit amet aliquam sapien convallis eget. Duis in pellentesque turpis. Vestibulum mi erat, tincidunt at velit eu, tempor sodales augue. Vestibulum purus turpis, congue non lacus in, condimentum convallis elit. Phasellus sit amet nisi aliquam, imperdiet orci sed, lacinia nibh. Nullam nec tempus ipsum. Nullam sed nisi mollis, vulputate nunc sit amet, condimentum leo figura 2.3.
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{Figures/cinematica_geometrica.png}
+\caption[Cinemática Directa Robot Scara]
+	{ In mauris nisl, porta eleifend viverra vitae \cite{Reyes 2022}.}
+\label{fig:filtro}
+\end{figure}
+
+\section{Marco teórico}
+
+\subsection{Aprendizaje por Refuerzo}
+In hac habitasse platea dictumst. In eget vehicula massa, quis ornare orci. Interdum et malesuada fames ac ante ipsum primis in faucibus. Duis sit amet quam nisi \cite{Sutton 2022}:
+\begin{itemize}
+    \item \textbf{Agente.}
+    Nulla nec augue vitae nulla elementum fringilla. Pellentesque at ultrices ipsum. Ut ultricies volutpat tellus, a rutrum ligula bibendum pulvinar.
+    \item \textbf{Entorno}
+    Curabitur sagittis eu neque id rutrum. Ut non leo ac ante lobortis volutpat nec non metus. Fusce varius cursus tellus at ultrices. Donec at pharetra sapien.
+    \item \textbf{Estado}
+    Nam tempor ullamcorper tincidunt. Phasellus luctus eu massa nec varius. Praesent rhoncus, libero at euismod mollis, urna lorem suscipit est, vel finibus nisl magna sit amet nulla.
+    \item \textbf{Acción}
+    In a nibh tincidunt, commodo lectus et, placerat nisl. Suspendisse ut justo eu odio blandit maximus. Sed in dignissim justo. Aliquam hendrerit purus vitae fringilla varius.
+    \item \textbf{Recompensa}
+    Cras at nisi et orci sollicitudin commodo. Aenean lacinia ipsum vel fringilla egestas. Mauris at hendrerit magna, in consequat justo. 
+\end{itemize}
+Praesent velit erat, varius eu imperdiet ac, euismod sed nunc. Aliquam dignissim sem ante, et pulvinar tortor feugiat lobortis. \cite{L. Lozano} ilustrado en la figura 2.4.
+    
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.40\textwidth]{Figures/esquema_RL.png}
+\caption[Aprendizaje por Refuerzo, ciclo de operación]
+	{In hac habitasse platea dictumst. Pellentesque sit amet \cite{Reyes 2022}.}
+\label{fig:filtro}
+\end{figure}
+
+
+
+
+
+\subsection{Redes Neuronales}
+
+\begin{itemize}
+    \item \textbf{Cras}
+    Vivamus faucibus arcu nisi, vel vulputate risus suscipit eget. Proin a consequat lacus. Ut bibendum laoreet aliquet. Interdum et malesuada fames ac ante ipsum primis in faucibus. figura 2.5.
+    \begin{itemize}
+        \item
+    \end{itemize}
+    \item \textbf{Capa}
+    
+    \item \textbf{Red}
+    
+    \item \textbf{Sistema Neuronal}
+    
+    
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.70\textwidth]{Figures/Red_neuronal.png}
+\caption[Red Neuronal, componentes]
+	{Nullam arcu urna, porttitor id sagittis quis, hendrerit in magna \cite{Reyes 2022}.}
+\label{fig:filtro}
+\end{figure}
+
+
+\subsection{Mauris commodo lobortiso}
+
+\subsection{Pellentesque nec nisi id metus varius tristi}
+
+\subsection{Aliquam sit amet justo}
+
+\subsection{Sed efficitur tortor at orci}
+
+\subsection{Modelo de Actor-Crico}
+
+\subsection{Curabitur posuere diam velit, et ultricies nunc eleifend nec}
+
+\subsection{Donec eu dui felis}
+
+\subsection{Pellentesque condimentum lectus}
+
+
+\section{Artículos Relacionados}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\begin{comment}
+\section{Problema A}
+
+\section{Concepto A}
+
+
+\section{Generación del habla}
+
+\subsection{Modelo Source-Filter}
+Un filtro acústico atenúa selectivamente (reduce en intensidad) ciertas frecuencias y permite que otras frecuencias pasen relativamente sin atenuar. La teoría del source-filter describe la producción del habla como un proceso de dos etapas \cite{book:soundLanguage}:
+\begin{itemize}
+    \item La generación de una fuente de sonido, con su propia forma espectral y estructura espectral fina.
+    \item El filtrado del espectro por las propiedades resonantes del tracto vocal.
+\end{itemize}
+
+La mayor parte del filtrado de un espectro de fuente se lleva a cabo por la parte del tracto vocal anterior a la fuente de sonido. Por ejemplo, en el caso de una fuente glotal, el filtro es todo el tracto vocal supraglótico.
+
+
+
+
+
+El filtro del tracto vocal siempre incluye alguna parte de la cavidad oral y también, opcionalmente, puede incluir la cavidad nasal. Para la producción de un sonido nasal, se
+bloquea el pasaje oral y se levanta el velo que normalmente bloquea el pasaje nasal.
+
+
+
+Las fuentes de sonido pueden ser periódicas o aperiódicas. Las fuentes de sonido glotal
+pueden ser:
+
+\begin{enumerate}
+    \item \textbf{Periódicas (sonoras).} Por ejemplo, la producción de la /a/, la glotis se abre y se cierra periódicamente.
+    \item \textbf{Aperiódicas (susurros y /h/).} Durante la producción de sonidos sordos, la glotis no vibra y está abierta. Por ejemplo, en la producción de /s/.
+    \item \textbf{Mixtas (por ejemplo, voz entrecortada).} Por ejemplo, en la producción de /z/.
+\end{enumerate}
+
+\section{Reconocimiento automático del habla (ASR)}
+Un sistema ASR produce la secuencia de palabras más probable dada una señal de voz
+entrante.
+
+\subsection{Modelos para el reconocimiento de voz de vocabulario extenso (LVCSR)}
+
+
+
+\subsubsection{A. Tradicional: Modelo basado en HMM}
+Se divide en tres partes modelos, los cuales son independientes entre sí y donde cada uno desempeña un papel diferente:
+
+\begin{itemize}
+\item \textbf{Modelo Acústico.} Determina el mapeo entre la entrada del habla y la secuencia de características. Existen dos tipos HMM-GMM y HMM-DNN. El HMM se utiliza principalmente para realizar deformaciones de tiempo dinámicas a nivel de frame. GMM y DNN se utilizan para calcular la probabilidad de emisión de los estados ocultos del HMM.
+
+\begin{itemize}
+    \item \textbf{Modelo HMM-GMM.} La probabilidad de observación está representada generalmente por GMM (Gaussian Mixture Model).
+    \item \textbf{Modelo HMM-DNN.} La distribución de probabilidad posterior del estado oculto se puede calcular mediante DNN. Proporciona mejores resultados.
+    
+\end{itemize}
+
+\item \textbf{Modelo de Pronunciación.} Define el mapeo entre fonemas (o subfonemas) y grafemas. Es la conexión entre la secuencia acústica y la secuencia del lenguaje.
+
+\item \textbf{Modelo de Lenguaje.} Es el mapeo la secuencia de caracteres para una transcripción final fluida. Predice la probabilidad de que palabras específicas aparezcan una
+tras otra en un idioma determinado. Los reconocedores típicos utilizan modelos de lenguaje n-gram. Un n-grama contiene la probabilidad previa de la aparición de una
+palabra (unigrama) o de una secuencia de palabras (bigrama,
+trigrama, etc.):
+
+\begin{itemize}
+    \item Probabilidad de unigrama: $P(w_i)$
+    \item Probabilidad de bigrama: $P(w_i|w_{i-1})$
+    \item Probabilidad de n-grama: $P(w_n|w_{n-1},w_{n-2},\dots,w_1)$
+\end{itemize}
+
+\end{itemize}
+
+Limitaciones de los modelos HMM:
+
+\begin{itemize}
+    \item El proceso de formación es complejo y difícil de optimizar globalmente.
+    \item Utiliza supuestos de independencia condicional dentro de HMM. Esto no coincide con la situación real de LVCSR.
+\end{itemize}
+
+\subsubsection{B. Empleando Deep Learning: Modelo End-to-End}
+Este modelo es un sistema que asigna directamente la secuencia de audio de entrada a la secuencia de palabras u otros grafemas. 
+
+
+Estructura Funcional:
+
+\begin{itemize}
+    \item \textbf{Encoder.} Asigna la secuencia de entrada de voz a la secuencia de características.
+    \item \textbf{Aligner.} Encuentra la alineación entre la secuencia de características y el lenguaje.
+    \item \textbf{Decoder.} Decodifica el resultado de identificación final.
+\end{itemize}
+
+Ventajas:
+
+\begin{itemize}
+    \item Varios módulos se fusionan en una red para la formación conjunta, es decir, no es necesario diseñar muchos módulos para realizar el mapeo entre varios estados intermedios.
+    \item A diferencia de los modelos basados en HMM, el modelo End-to-End no presenta una representación interna para la pronunciación de una cadena de caracteres.
+\end{itemize}
+
+Según sus implementaciones de alineamiento suave, este modelo se divide en tres categorías:
+
+\begin{itemize}
+    \item \textbf{Basado en CTC.} Primero enumera todas las posibles alineaciones dura. Luego, logra una alineación suave agregando estas alineaciones dura. CTC asume que las etiquetas de salida son independientes entre sí al enumerar alineaciones duras.
+    \item \textbf{Transductor RNN.} Enumera todas las posibles alineaciones duras y luego las agrega para una alineación suave. Pero a diferencia de CTC, el transductor RNN no hace suposiciones independientes sobre las etiquetas al enumerar alineaciones duras. Por lo tanto, es diferente de CTC en términos de definición de ruta y cálculo de probabilidad.
+    \item \textbf{Basado en la atención.} No enumera todas las posibles alineaciones duras, sino que utiliza un mecanismo de atención para calcular directamente la información de alineación suave entre los datos de entrada y la etiqueta de salida.
+\end{itemize}
+
+\section{Deep Learning}
+
+En esta sección presentamos los conceptos generales empleados en la construcción de un sistema ASR.
+
+\subsection{Redes Neuronales Recurrentes (RNNs)}
+Las redes neuronales recurrentes (RNN) se originan de introducir conexiones recurrentes dentro de las capas de una FNN (Feed Forward Neural Network) de tal forma que cada paso de tiempo tiene como una de sus entradas el estado anterior$t$. Esta característica permite que tengan memoria. 
+
+Dada una secuencia de entrada $x(t) = (x_1, \dots, x_T)$ en el paso de tiempo actual $t$, las RNN obtienen el estado oculto, $h_t$, utilizando el estado oculto anterior, $h_t − 1$, y generan una secuencia vectorial $y = (y_1, \dots, y_T)$\cite{11_2001.00378}. El cálculo de estos elementos se muestran en \ref{eq:estado_oculto} y \ref{eq:yt}
+\begin{equation}
+    h_t = H(W_{xh}x_t + W{hh}h_{t−1} + b_h
+\end{equation}
+\label{eq:estado_oculto}
+\myequations{Estado oculto}
+
+\begin{equation}
+    y_t = (W{xh}x_t + b_y)
+\end{equation}
+\label{eq:yt}
+\myequations{Secuencia Vectorial}
+
+donde W es las matriz de ponderación (es decir, $W_{xh}$ es una matriz de ponderación de una capa oculta de entrada), $b$ es el vector de sesgo y $H$ denota la función de capa oculta. 
+
+Lastimosamente este tipo de redes presenta el problema de gradiente de desaparición (vanishing gradient), en el cual la contribución de estados anteriores es cada vez menor con el paso del tiempo. Las aquitecturas de \textbf{memoria a corto / largo plazo (LSTM}) y \textbf{las unidades recurrentes controladas (GRU)} resuelven este problema al manejar mecanimos de activación para agregar y olvidar información determinada.
+
+Existen dos tipos de RNNs:
+
+\begin{itemize}
+    \item \textbf{RNN Unidireccional.} Son las que se han presentado hasta ahora en la que se emplean estados anteriores.
+    \item \textbf{RNN Bidireccional.} Emplea estados anteriores y posteriores, lo cual mejora la exactitud de la red. Sin embargo, es de alta latencia ya que es necesario procesar la secuencia completa.
+\end{itemize}
+
+\subsection{Métricas}
+El rendimiento de un sistema ASR se mide comparando las transcripciones hipotéticas y las transcripciones de referencia.
+
+\subsubsection{Tasa de error de palabra (WER)}
+Es la métrica más utilizada. Las dos secuencias de palabras se alinean
+primero usando un algoritmo de alineación de cadenas basado en
+programación dinámica. Después de la alineación, se determina el número
+de eliminaciones (D), sustituciones (S) e inserciones (I). Las eliminaciones,
+sustituciones e inserciones se consideran errores, y el WER se calcula por la
+tasa del número de errores al número de palabras (N) en la referencia.
+
+\begin{equation}
+    WER = \frac{I+D+S}{N}*100\%
+\end{equation}
+\label{eq:wer}
+\myequations{WER}
+
+\subsubsection{Tasa de error de caracter (CER)}
+Calcula el porcentaje de oraciones con al menos un error.
+\end{comment}
+%\subsection{Trabajo Relacionado}
+%En la literatura se puede encontrar diversas referencias a sistemas y/o métodos de ASR. A continuación, se presentan algunos de ellos. \\
+
+%La arquitectura presentada en \cite{01_1512.02595} consta de capas convulaciones invariantes de una o dos dimensiones (time-only domain o time-and-frequency domain) para reducir la cantidad de pasos de tiempo. Seguida de estas, se encuentran un conjunto de capas recurrentes LSTM unidireccionales y finalmente, seguidas de capas completamente conectadas. Para el entrenamiento de la red de emplea la función de pérdida CTC y el aprendizaje curricular (curriculum learning) SortaGrad que toma como heurística de dificultad a la longitud de las declaraciones, es decir, entra las declaraciones de menor a mayor longitud. Adicionalmente, emplea un modelo de lenguaje de 5-grama para el idioma inglés.
+
+%En modelo presentado en \cite{04_2006.11477} está compuesto de un encoder de características convolucional multicapa que toma como entrada el audio y tiene como salida representaciones del habla que posteriormente son discretizadas para representar los targets.
+
+
+
+\afterpage{\blankpage}

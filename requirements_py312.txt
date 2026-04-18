@@ -17,6 +17,8 @@
 torch>=1.10.0
 torchvision>=0.11.0
 numpy>=1.21.0
+einops>=0.4.0
+requests>=2.25.0
 
 # ============================================================================
 # MODELOS: Arquitecturas especificas
@@ -36,7 +38,9 @@ taming-transformers-rom1504  # Version compatible
 # PROCESAMIENTO DE DATOS
 # ============================================================================
 Pillow>=8.3.0           # Manejo de imagenes
-scipy>=1.7.0            # Lectura de archivos .mat
+scipy>=1.7.0            # Lectura de archivos .mat + PixCorr
+scikit-image>=0.19.0    # SSIM y PSNR para evaluacion
+lpips>=0.1.4            # Distancia perceptual (opcional pero recomendado)
 # pickle5 NO ES NECESARIO en Python >= 3.8 (ya viene integrado)
 
 # ============================================================================

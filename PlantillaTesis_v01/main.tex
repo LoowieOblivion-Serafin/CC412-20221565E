@@ -1,0 +1,225 @@
+\documentclass[12pt,spanish, singlespacing,]{MastersDoctoralThesis}
+\usepackage[utf8]{inputenc} 
+\usepackage[T1]{fontenc} 
+\usepackage[none]{hyphenat}
+\usepackage{verbatim}
+\usepackage{palatino} 
+\usepackage{acronym}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{datetime}
+\usepackage{graphicx}
+\usepackage{subfig}
+\spacing{1.4}
+\usepackage[acronym,nomain]{glossaries}
+%\usepackage[backend=bibtex,style=authoryear,natbib=true]{biblatex}
+%\addbibresource{main.bib}
+\usepackage[autostyle=true]{csquotes}
+
+\usepackage{afterpage}
+\newcommand\blankpage{%
+    \null
+    \thispagestyle{empty}%
+    \addtocounter{page}{0}%
+    \newpage}
+    
+\usepackage{lipsum}  
+
+\usepackage{tocloft}    
+\newcommand{\listequationsname}{Índice de ecuaciones}
+\newlistof{myequations}{equ}{\listequationsname}
+\newcommand{\myequations}[1]{%
+\addcontentsline{equ}{myequations}{\hspace{1.5em} \protect\numberline{\theequation}#1}\par}
+\setlength{\cftmyequationsnumwidth}{2.5em}% Width of equation number in List of Equations
+
+    
+\usepackage{listings}
+\renewcommand{\lstlistingname}{Código}
+\renewcommand{\lstlistlistingname}{Índice de algoritmos}
+
+
+
+\usepackage{float}
+\usepackage{url}
+\usepackage[font=footnotesize,labelfont=bf]{caption}
+\makeatletter
+\g@addto@macro{\UrlBreaks}{\UrlOrds}
+\makeatother
+
+\thesistitle{}
+\supervisor{Proin Aliquam Vestibulum} 
+\examiner{} 
+\degree{} 
+\author{Mauris Finibus Ante Ut} 
+\subject{}
+\keywords{} 
+\university{\href{http://www.uni.edu.pe/}{Universidad Nacional de Ingeniería}} 
+\department{\href{http://fc.uni.edu.pe/fc/index.php/escuelas/ciencia-de-la-computacion}{}} 
+\faculty{\href{http://fc.uni.edu.pe/fc/}{}}
+\hypersetup{pdftitle=\ttitle} 
+\hypersetup{pdfauthor=\authorname}
+\hypersetup{pdfkeywords=\keywordnames} 
+\sloppy
+\decimalpoint
+\begin{document}
+\frontmatter 
+\pagestyle{plain} 
+\begin{titlepage}
+\begin{center}
+%\textsc{\huge \univname}\\[0.5cm]
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.3\textwidth]{Figures/logo_uni.png}
+\end{figure}
+
+\textsc{\huge \univname}\\[0.3cm]
+\textsc{\Large Facultad de Ciencias}\\[0.2cm]
+\textsc{\large Escuela Profesional de Ciencia de la Computación}\\[1.5cm]
+% \textsc{\LARGE \textit{T\'itulo del trabajo}}\\[2cm] 
+\textsc{\large Proyecto de Tesis 1}\\[1.5cm] 
+{\Large \textbf{Titulo del Trabajo de Proyecto de Tesis N}}
+{\huge \bfseries \ttitle}\\[1cm] 
+% Thesis title
+%\bigskip
+%\HRule \\[0.8cm] % Horizontal line
+
+%\begin{minipage}{1.5\textwidth}
+%\begin{flushleft} \large
+\bigskip
+\bigskip
+\large\emph{Autor:\\}
+{\authorname}\\ 
+\large\emph{Asesor:\\} 
+{\supname} 
+%\end{flushleft}
+%\end{minipage}
+%\\[2cm]
+\\[1cm]
+{\large \today}\\[4cm] 
+ 
+\vfill
+\end{center}
+\end{titlepage}
+\afterpage{\blankpage}
+%\cleardoublepage
+
+%\renewcommand{\abstractname}{Abstract}
+\begin{abstract}
+\addchaptertocentry{\abstractname}
+%%%%%%%%%%%%%%%%%%%%%%%%% AQUI %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%5
+%Poner un resumen del trabajo de no más de 1 página
+
+%El presente trabajo de investigación se centra en las técnicas empleadas para el reconocimiento de voz. 
+
+In cursus dignissim purus a efficitur. Nullam et sem nec tellus rutrum sagittis ut nec augue. Integer suscipit aliquam metus eu fermentum. Vivamus id dolor risus. Suspendisse potenti. Morbi finibus varius lectus eu mattis. Vivamus sapien lacus, finibus nec tortor vel, ultrices efficitur erat. Praesent finibus vitae nisl id iaculis. Praesent congue mollis libero, sit amet luctus ipsum porta non. Praesent pretium et sapien eget hendrerit. Vestibulum feugiat diam sit amet felis feugiat, sed ultricies nulla consectetur. Nam condimentum malesuada orci nec dictum. Suspendisse elementum tincidunt quam, at facilisis metus tempor id. Sed velit tortor, rutrum eu semper vitae, dapibus sit amet dolor.  
+
+\textsc{Palabras clave:} Nullam, Et Sem Nec, Tellus, Rutrum, Sagittis Ut
+\end{abstract}
+
+\afterpage{\blankpage}
+\tableofcontents
+
+\newpage
+\listoffigures
+
+\afterpage{\blankpage}
+\newpage
+\listoftables
+
+\afterpage{\blankpage}
+\newpage
+\listofmyequations
+
+\afterpage{\blankpage}
+\lstlistoflistings
+
+\afterpage{\blankpage}
+\newpage
+\begin{center}
+{\huge Índice de Acrónimos}\\[2cm]
+\end{center}
+\bigskip
+\begin{tabular}{ l c l }
+
+\textbf{ASN} & & Aenean Semper Nunc\\
+\textbf{QDC} & & Quisque Dapibus Congu\\ 
+\textbf{CATS} & & Class Aptent Taciti Sociosqu \\
+\textbf{DLM} & & Duis Lacinia Massa \\
+\textbf{AIA} & & Aenean Interdum Aliquet \\
+
+
+
+
+\end{tabular}
+\afterpage{\blankpage}
+
+\newpage
+\begin{center}
+{\huge \textit{Agradecimientos}}\\[1.5cm]
+\end{center}
+
+Sed id tincidunt magna. Integer metus dui, dictum vitae feugiat eu, fermentum ultrices magna. In sed dignissim massa, eget dictum ex. Aenean metus arcu, condimentum at euismod tempor, consequat quis mi. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Suspendisse aliquam nulla tristique nisi euismod, bibendum suscipit risus posuere. Integer porta ipsum tellus, at pharetra felis fringilla vel. \\
+
+Phasellus et dapibus enim, volutpat iaculis augue. Aliquam erat volutpat. Aliquam eu imperdiet enim, sed tincidunt velit. Donec eget porttitor leo. Ut est magna, ullamcorper mollis dignissim vitae, laoreet sed diam. Curabitur eu tempus odio, ac sollicitudin lacus. Suspendisse aliquam sapien a sem aliquam, sit amet ultricies quam condimentum. Sed mollis at urna non commodo. .\\
+
+Praesent eu dapibus dui. Aenean elementum nisi lorem, vitae ultricies felis egestas sed. Cras rhoncus nunc erat, non hendrerit ligula tincidunt id. Integer ut scelerisque nulla, eu commodo enim. 
+
+\afterpage{\blankpage}
+
+
+\mainmatter 
+\pagestyle{thesis}
+
+\input{Chapters/Cap1}
+%\newpage
+%$\ $
+%\thispagestyle{empty} % para que no se numere esta pagina
+\input{Chapters/Cap2}
+%\newpage
+$\ $
+%\thispagestyle{empty} % para que no se numere esta pagina
+
+
+\input{Chapters/Cap3}
+%\newpage
+$\ $
+%\thispagestyle{empty} % para que no se numere esta pagina
+\input{Chapters/Cap4}
+%\newpage
+$\ $
+%\thispagestyle{empty} % para que no se numere esta pagina
+%\thispagestyle{empty} % para que no se numere esta pagina
+\input{Chapters/Cap5}
+%\newpage
+$\ $
+%\thispagestyle{empty} % para que no se numere esta pagina
+\input{Chapters/Cap6}
+%\newpage
+$\ $
+%\thispagestyle{empty} % para que no se numere esta pagina
+\input{Chapters/Cap7}
+
+\begin{thebibliography}{0}
+ 
+ \bibitem{usaa 2022} Official United States Air Hockey Association. Recuperado el 11 de Octubre de 2022 https://airhockeypros.com/fundamentals.html
+ 
+ \bibitem{airhockey 1975} G. M. Kaler, "Build this tabletop hockey game for family fun", Popular Mechanics, vol. 144, n.º 5, p. 188, 1975. 
+ 
+  \bibitem{Reyes 2022} F. Reyes, Robótica - control de robots manipuladores, 1ª ed, México D.F: AlfaOmega, 2011, pp. 236-238
+  
+  \bibitem{Kelly 2003} R. Kelly, V. Santibañez, Control de movimiento de robots manipuladores. Madrid: Pearson Educación, 2003, pp. 285 - 297.
+  
+  \bibitem{Sutton 2022} R. Sutton, Reinforcement learning: an introduction, Cambridge, Massachusetts: MIT Press, 1998.
+  
+  \bibitem{L. Lozano} L. Lozano, Trabajo de fin de grado en Matemáticas: Aprendizaje por Refuerzo,Elementos básicos y algoritmos. España, Universidad de Zaragoza.
+
+\end{thebibliography}
+\afterpage{\blankpage}
+
+\appendix
+\input{Appendix/AppendixA}
+\input{Appendix/AppendixB}
+\input{Appendix/AppendixC}
+
+\end{document}

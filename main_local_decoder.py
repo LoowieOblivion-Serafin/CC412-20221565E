@@ -134,12 +134,24 @@ OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 # ============================================================================
 # CONFIGURACIÓN DE LOGGING
 # ============================================================================
+# Configurar logging con soporte UTF-8 en consolas Windows (evita UnicodeEncodeError)
+import io as _io
+_stream_handler = logging.StreamHandler(
+    _io.TextIOWrapper(
+        sys.stdout.buffer if hasattr(sys.stdout, 'buffer') else sys.stdout,
+        encoding='utf-8',
+        errors='replace',
+        line_buffering=True,
+    ) if hasattr(sys.stdout, 'buffer') else sys.stdout
+)
+_stream_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(str(OUTPUT_DIR / 'reconstruction.log')),
-        logging.StreamHandler()
+        logging.FileHandler(str(OUTPUT_DIR / 'reconstruction.log'), encoding='utf-8'),
+        _stream_handler,
     ]
 )
 logger = logging.getLogger(__name__)
@@ -829,7 +841,39 @@ def vgg_perceptual_loss(vqgan_output, target_vgg_features, mean_vgg_features, vg
         if i >= max_layer:
             break
     
+
     return total_loss
+
+
+# ============================================================================
+# NUEVA FUNCIÓN: PÉRDIDA DE VARIACIÓN TOTAL (anti-artefactos)
+# ============================================================================
+
+def total_variation_loss(img):
+    """
+    Penaliza variaciones bruscas pixel-a-pixel (prior de suavidad).
+
+    PROPÓSITO: Suprimir artefactos de alta frecuencia que satisfacen
+    matemáticamente las pérdidas CLIP/VGG pero son ruido visual
+    (patrones checkerboard, bandas, texturas imposibles).
+
+    Fórmula:
+        L_TV = mean(|I[x+1,y] - I[x,y]|) + mean(|I[x,y+1] - I[x,y]|)
+
+    Propiedades:
+    - Preserva bordes fuertes (importantes para percepción)
+    - Elimina gradientes de alta frecuencia (ruido)
+    - Acts de forma similar al prior gaussiano sobre derivadas de imagen
+
+    Args:
+        img: Imagen tensor [1, 3, H, W] en rango [-1, 1]
+
+    Returns:
+        Tensor escalar: suma de variaciones horizontales y verticales
+    """
+    diff_h = torch.abs(img[:, :, 1:, :] - img[:, :, :-1, :]).mean()
+    diff_w = torch.abs(img[:, :, :, 1:] - img[:, :, :, :-1]).mean()
+    return diff_h + diff_w
 
 
 # ============================================================================
@@ -847,117 +891,191 @@ def reconstruct_image(
     device,
     num_iterations=500,
     lr=0.05,
-    lambda_vgg=0.1
+    lambda_vgg=0.5,
+    lambda_tv=0.01,
+    quantize_interval=50,
+    seed=42,
 ):
     """
     Optimiza el vector latente z para reconstruir una imagen mental.
-    
+
     ALGORITMO CENTRAL DEL PROYECTO - MÓDULO 2 (Decodificador Generativo)
     =====================================================================
-    
+
     Objetivo (Ecuación del paper):
-        z* = argmin_z [ L_CLIP(z) + λ·L_VGG(z) ]
-    
+        z* = argmin_z [ L_CLIP(z) + λ_vgg·L_VGG(z) + λ_tv·L_TV(z) ]
+
     Donde:
-    - L_CLIP(z): Pérdida de alineación semántica (¿la imagen tiene el significado correcto?)
-    - L_VGG(z): Pérdida de reconstrucción espacial (¿la imagen tiene los detalles correctos?)
-    - λ: Balance entre semántica y estructura (típicamente 0.1-1.0)
-    
-    Método de optimización: Langevin Dynamics
-    -----------------------------------------
-    En lugar de usar solo gradientes (como Adam), añadimos ruido estocástico:
-    
-        z_{t+1} = z_t - η·∇_z L(z_t) + √(2η)·ε
-                  ↑      ↑             ↑
-              posición  gradiente    ruido gaussiano
-              actual    (fuerza)     (exploración)
-    
-    Ventajas:
-    1. Evita mínimos locales mediante exploración estocástica
-    2. Implementa "Bayesian estimation" del título del paper
-    3. Permite generar múltiples soluciones plausibles
-    
+    - L_CLIP(z): Pérdida de alineación semántica (significado global)
+    - L_VGG(z):  Pérdida perceptual (estructura espacial local)
+    - L_TV(z):   Pérdida de variación total (prior de suavidad = anti-artefactos)
+    - λ_vgg, λ_tv: Pesos de balance
+
+    Mejoras sobre la implementación anterior:
+    ------------------------------------------
+    1. Inicialización determinista: z parte del punto neutro del codebook VQGAN
+       (imagen gris 128,128,128 codificada) en lugar de ruido gaussiano puro.
+       Garantiza reproducibilidad y estabilidad inicial.
+
+    2. Proyección periódica al manifold: cada `quantize_interval` iteraciones,
+       se proyecta z al codebook discreto de VQGAN. Evita que el optimizador
+       explore "tierra de nadie" entre los códigos válidos, eliminando
+       los artefactos psicodeélicos del decodificador.
+
+    3. Langevin con schedule decreciente: el ruido es fuerte al inicio
+       (exploración) y casi nulo al final (convergencia). Evita destruir
+       el progreso acumulado en las iteraciones finales.
+
+    4. Regularización TV: suprime artefactos de alta frecuencia que satisfacen
+       matemáticamente CLIP/VGG pero son ruido visual.
+
     Args:
-        target_clip_features: Embedding CLIP del cerebro (768-d)
-        target_vgg_features: Features VGG del cerebro (4096-d)
-        vqgan_model: Modelo VQGAN para decodificar z → imagen
+        target_clip_features: Embedding CLIP del cerebro (512-d)
+        target_vgg_features: Features VGG del cerebro (dict por capa)
+        mean_clip_feature: Embedding CLIP promedio (referencia)
+        mean_vgg_features: Features VGG promedio (referencia)
+        vqgan_model: Modelo VQGAN para z → imagen
         clip_model: Modelo CLIP para pérdida semántica
         vgg_model: Modelo VGG19 para pérdida perceptual
         device: 'cuda' o 'cpu'
-        num_iterations: Número de pasos de optimización (500-1000 típicamente)
-        lr: Learning rate (0.05-0.1 típicamente)
-        lambda_vgg: Peso de la pérdida VGG vs CLIP
-    
+        num_iterations: Pasos de optimización
+        lr: Learning rate (Adam)
+        lambda_vgg: Peso de L_VGG respecto a L_CLIP
+        lambda_tv: Peso de regularización Total Variation
+        quantize_interval: Proyectar z al manifold VQGAN cada N iteraciones
+        seed: Semilla para reproducibilidad
+
     Returns:
         Imagen reconstruida como array numpy [H, W, 3]
     """
-    logger.info("="*60)
+    logger.info("=" * 60)
     logger.info("INICIANDO RECONSTRUCCIÓN DE IMAGEN MENTAL")
-    logger.info("="*60)
-    
-    # Inicializar vector latente z aleatoriamente
-    # Dimensión: [1, 256, H/16, W/16] para VQGAN f=16
-    latent_size = 16  # Para imágenes 256x256 con factor 16
-    z = torch.randn(1, 256, latent_size, latent_size, device=device, requires_grad=True)
-    
-    # Optimizador: Adam con Langevin dynamics implementado manualmente
+    logger.info(f"  Iter={num_iterations} | lr={lr} | λ_vgg={lambda_vgg} | λ_tv={lambda_tv}")
+    logger.info(f"  Quantize cada {quantize_interval} iter | Seed={seed}")
+    logger.info("=" * 60)
+
+    # -------------------------------------------------------------------------
+    # FIX 1: Inicialización DETERMINISTA de z
+    # En lugar de ruido gaussiano (diferente en cada ejecución), inicializamos
+    # z partiendo de la codificación de una imagen neutra (gris 50%).
+    # Esto garantiza: (a) reproducibilidad, (b) punto de partida dentro del
+    # manifold VQGAN (el decodificador interpreta bien este vector desde iter 0).
+    # -------------------------------------------------------------------------
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+
+    latent_size = 16  # Para imágenes 256x256 con factor f=16
+
+    with torch.no_grad():
+        # Imagen gris neutra como punto de partida en el espacio latente
+        neutral_img = torch.full((1, 3, 256, 256), 0.5, device=device)
+        neutral_img_scaled = neutral_img * 2.0 - 1.0  # [0,1] → [-1,1]
+        try:
+            z_init, _, _ = vqgan_model.encode(neutral_img_scaled)
+            logger.info(f"  z inicializado desde imagen neutra: shape={z_init.shape}")
+        except Exception as e:
+            logger.warning(f"Encode fallback a randn: {e}")
+            z_init = torch.randn(1, 256, latent_size, latent_size, device=device)
+
+    z = z_init.clone().detach().requires_grad_(True)
+
+    # Optimizador Adam
     optimizer = optim.Adam([z], lr=lr)
-    
+
     # Mover features objetivo al device
     target_clip_features = target_clip_features.to(device)
-    
+
     # Barra de progreso
     pbar = tqdm(range(num_iterations), desc="Optimizando vector latente")
-    
+
     for iteration in pbar:
         optimizer.zero_grad()
-        
+
+        # -------------------------------------------------------------------------
+        # FIX 2: Proyección periódica al manifold VQGAN (codebook discreto)
+        # Cada `quantize_interval` iteraciones, proyectamos z al código válido
+        # más cercano del codebook. Usamos una mezcla 80/20 para que el gradiente
+        # no quede completamente bloqueado por la proyección discreta.
+        # -------------------------------------------------------------------------
+        if iteration > 0 and iteration % quantize_interval == 0:
+            with torch.no_grad():
+                try:
+                    z_q, _, _ = vqgan_model.quantize(z)
+                    # Mezcla suave: ancla al manifold pero conserva 20% del gradiente continuo
+                    z.data = 0.8 * z_q.data + 0.2 * z.data
+                except Exception:
+                    pass  # Si quantize falla, seguir sin proyectar
+
         # FORWARD PASS: Decodificar z → imagen
         with torch.enable_grad():
             reconstructed_image = vqgan_model.decode(z)
-        
+
+        # -------------------------------------------------------------------------
         # CALCULAR PÉRDIDAS
+        # -------------------------------------------------------------------------
         # 1. Alineación Semántica (CLIP) - con augmentación y mean subtraction
-        loss_clip = clip_loss(reconstructed_image, target_clip_features, clip_model, mean_clip_feature, device)
-        
+        loss_clip = clip_loss(
+            reconstructed_image, target_clip_features, clip_model, mean_clip_feature, device
+        )
+
         # 2. Reconstrucción Espacial (VGG) - con mean subtraction y correlación
-        loss_vgg = vgg_perceptual_loss(reconstructed_image, target_vgg_features, mean_vgg_features, vgg_model, device)
-        
-        # 3. Pérdida Total
-        total_loss = loss_clip + lambda_vgg * loss_vgg
-        
+        loss_vgg = vgg_perceptual_loss(
+            reconstructed_image, target_vgg_features, mean_vgg_features, vgg_model, device
+        )
+
+        # 3. FIX 5: Regularización Total Variation (anti-artefactos)
+        loss_tv = total_variation_loss(reconstructed_image)
+
+        # 4. Pérdida Total
+        total_loss = loss_clip + lambda_vgg * loss_vgg + lambda_tv * loss_tv
+
         # BACKWARD PASS
         total_loss.backward()
         optimizer.step()
-        
-        # Implementar ruido de Langevin (cada N iteraciones)
+
+        # -------------------------------------------------------------------------
+        # FIX 3: Ruido de Langevin con schedule decreciente
+        # Escala máxima al inicio (exploración del espacio latente) y casi cero
+        # al final (convergencia). Evita destruir el progreso acumulado.
+        # -------------------------------------------------------------------------
         if iteration % 10 == 0:
             with torch.no_grad():
-                noise = torch.randn_like(z) * np.sqrt(2 * lr)
-                z.add_(noise)
-        
+                # Factor de decaimiento lineal: 1.0 al inicio → 0.05 al final
+                decay = 1.0 - (iteration / num_iterations) * 0.95
+                noise_scale = np.sqrt(2 * lr) * 0.01 * decay  # Escala pequeña y decreciente
+                noise = torch.randn_like(z) * noise_scale
+                z.data.add_(noise)
+
         # Logging
         if iteration % 50 == 0:
-            logger.info(f"Iter {iteration}/{num_iterations} | "
-                       f"Loss_CLIP: {loss_clip.item():.4f} | "
-                       f"Loss_VGG: {loss_vgg.item():.4f} | "
-                       f"Total: {total_loss.item():.4f}")
-        
+            logger.info(
+                f"Iter {iteration}/{num_iterations} | "
+                f"Loss_CLIP: {loss_clip.item():.4f} | "
+                f"Loss_VGG: {loss_vgg.item():.4f} | "
+                f"Loss_TV: {loss_tv.item():.4f} | "
+                f"Total: {total_loss.item():.4f}"
+            )
+
         pbar.set_postfix({
             'CLIP': f'{loss_clip.item():.3f}',
-            'VGG': f'{loss_vgg.item():.3f}'
+            'VGG': f'{loss_vgg.item():.3f}',
+            'TV': f'{loss_tv.item():.4f}',
         })
-    
-    # DECODIFICACIÓN FINAL
+
+    # DECODIFICACIÓN FINAL (desde el z cuantizado para máxima coherencia)
     with torch.no_grad():
-        final_image = vqgan_model.decode(z)
+        try:
+            z_final, _, _ = vqgan_model.quantize(z)
+        except Exception:
+            z_final = z  # fallback si quantize no está disponible
+        final_image = vqgan_model.decode(z_final)
         final_image = (final_image + 1) / 2  # [-1, 1] → [0, 1]
         final_image = torch.clamp(final_image, 0, 1)
-        
+
         # Convertir a numpy array [H, W, 3]
         final_image_np = final_image.squeeze(0).permute(1, 2, 0).cpu().numpy()
         final_image_np = (final_image_np * 255).astype(np.uint8)
-    
+
     logger.info("✓ Reconstrucción completada")
     return final_image_np
 
@@ -1073,7 +1191,8 @@ def main():
             logger.info(f"{'='*60}")
             
             try:
-                # Reconstruir imagen (paper-accurate algorithm)
+                # Reconstruir imagen (paper-accurate algorithm con correcciones)
+                opt_params = config.get_optimization_params()
                 reconstructed_image = reconstruct_image(
                     target_clip_features=features['clip'],
                     target_vgg_features=features['vgg'],
@@ -1083,9 +1202,12 @@ def main():
                     clip_model=clip_model,
                     vgg_model=vgg_model,
                     device=device,
-                    num_iterations=500,  # Ajustar según calidad deseada
-                    lr=0.05,
-                    lambda_vgg=0.1
+                    num_iterations=opt_params['num_iterations'],
+                    lr=opt_params['learning_rate'],
+                    lambda_vgg=opt_params['lambda_vgg'],
+                    lambda_tv=opt_params.get('lambda_tv', 0.01),
+                    quantize_interval=opt_params.get('quantize_interval', 50),
+                    seed=opt_params.get('seed', 42),
                 )
                 
                 # Guardar imagen

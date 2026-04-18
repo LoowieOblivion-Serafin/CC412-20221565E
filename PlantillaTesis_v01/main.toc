@@ -1,0 +1,52 @@
+\select@language {spanish}
+\contentsline {chapter}{Resumen}{\es@scroman {iii}}{figure.caption.1}
+\contentsline {chapter}{\numberline {1}Introducci\IeC {\'o}n}{1}{chapter.3}
+\contentsline {section}{\numberline {1.1}Motivaci\IeC {\'o}n}{1}{section.4}
+\contentsline {section}{\numberline {1.2}Objetivo General}{1}{section.5}
+\contentsline {section}{\numberline {1.3}Estructura del Seminario}{2}{section.6}
+\contentsline {chapter}{\numberline {2}Estado del Arte}{5}{chapter.7}
+\contentsline {section}{\numberline {2.1}El Entorno y el Agente}{5}{section.8}
+\contentsline {subsection}{\numberline {2.1.1}Entorno: Air Hockey}{5}{subsection.9}
+\contentsline {subsection}{\numberline {2.1.2}Agente: Robot Scara}{6}{subsection.11}
+\contentsline {subsubsection}{Modelo de Cinem\IeC {\'a}tica Directa}{7}{section*.13}
+\contentsline {section}{\numberline {2.2}Marco te\IeC {\'o}rico}{7}{section.15}
+\contentsline {subsection}{\numberline {2.2.1}Aprendizaje por Refuerzo}{7}{subsection.16}
+\contentsline {subsection}{\numberline {2.2.2}Redes Neuronales}{8}{subsection.18}
+\contentsline {subsection}{\numberline {2.2.3}Mauris commodo lobortiso}{9}{subsection.20}
+\contentsline {subsection}{\numberline {2.2.4}Pellentesque nec nisi id metus varius tristi}{9}{subsection.21}
+\contentsline {subsection}{\numberline {2.2.5}Aliquam sit amet justo}{9}{subsection.22}
+\contentsline {subsection}{\numberline {2.2.6}Sed efficitur tortor at orci}{9}{subsection.23}
+\contentsline {subsection}{\numberline {2.2.7}Modelo de Actor-Crico}{9}{subsection.24}
+\contentsline {subsection}{\numberline {2.2.8}Curabitur posuere diam velit, et ultricies nunc eleifend nec}{9}{subsection.25}
+\contentsline {subsection}{\numberline {2.2.9}Donec eu dui felis}{9}{subsection.26}
+\contentsline {subsection}{\numberline {2.2.10}Pellentesque condimentum lectus}{9}{subsection.27}
+\contentsline {section}{\numberline {2.3}Art\IeC {\'\i }culos Relacionados}{9}{section.28}
+\contentsline {chapter}{\numberline {3}Herramientas}{11}{chapter.29}
+\contentsline {section}{\numberline {3.1}Herramientas de Construcci\IeC {\'o}n de entorno Personalizado AIR HOCKEY}{11}{section.30}
+\contentsline {subsection}{\numberline {3.1.1}URDF - United Robotics Description Format}{11}{subsection.31}
+\contentsline {subsection}{\numberline {3.1.2}PyBullet}{11}{subsection.32}
+\contentsline {section}{\numberline {3.2}Herramientas de Construcci\IeC {\'o}n de L\IeC {\'o}gica de Agente}{12}{section.33}
+\contentsline {subsection}{\numberline {3.2.1}Pytorch}{12}{subsection.34}
+\contentsline {chapter}{\numberline {4}An\IeC {\'a}lisis}{13}{chapter.35}
+\contentsline {section}{\numberline {4.1}Ut vitae lacinia}{13}{section.36}
+\contentsline {section}{\numberline {4.2}Aenean lacinia cursus}{13}{section.37}
+\contentsline {section}{\numberline {4.3}Donec quis erat}{13}{section.38}
+\contentsline {chapter}{\numberline {5}Desarrollo de la investigaci\IeC {\'o}n}{15}{chapter.40}
+\contentsline {section}{\numberline {5.1}Concepto A en el Desarrollo de la Investigaci\IeC {\'o}n con el input}{15}{section.41}
+\contentsline {section}{\numberline {5.2}Teor\IeC {\'\i }as C en el Desarrollo de la Investigaci\IeC {\'o}n con el input}{15}{section.42}
+\contentsline {section}{\numberline {5.3}Metodolog\IeC {\'\i }a E en el Desarrollo de la Investigaci\IeC {\'o}n con el input}{16}{section.44}
+\contentsline {chapter}{\numberline {6}An\IeC {\'a}lisis de Resultados}{17}{chapter.50}
+\contentsline {section}{\numberline {6.1}Comparaci\IeC {\'o}n}{17}{section.51}
+\contentsline {section}{\numberline {6.2}Mejora}{17}{section.52}
+\contentsline {section}{\numberline {6.3}Descripci\IeC {\'o}n}{17}{section.53}
+\contentsline {section}{\numberline {6.4}Estad\IeC {\'\i }sticas}{17}{section.54}
+\contentsline {section}{\numberline {6.5}Validaci\IeC {\'o}n}{17}{section.55}
+\contentsline {chapter}{\numberline {7}Conclusiones y Trabajo Futuro}{19}{chapter.56}
+\contentsline {section}{\numberline {7.1}Conclusiones}{19}{section.57}
+\contentsline {section}{\numberline {7.2}Trabajo Futuro}{19}{section.58}
+\contentsline {chapter}{\numberline {A}Este es un ap\IeC {\'e}ndice}{22}{appendix.62}
+\contentsline {chapter}{\numberline {B}Este es otro ap\IeC {\'e}ndice}{23}{appendix.63}
+\contentsline {section}{\numberline {B.1}Secci\IeC {\'o}n del ap\IeC {\'e}ndice}{23}{section.64}
+\contentsline {chapter}{\numberline {C}Este es mi \IeC {\'u}ltimo ap\IeC {\'e}ndice}{24}{appendix.65}
+\contentsline {section}{\numberline {C.1}Primera Secci\IeC {\'o}n}{24}{section.66}
+\contentsline {section}{\numberline {C.2}Segunda Secci\IeC {\'o}n}{24}{section.67}

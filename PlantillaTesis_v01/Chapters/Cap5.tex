@@ -1,0 +1,55 @@
+\chapter{Desarrollo de la investigación}
+
+
+
+\section{Concepto A en el Desarrollo de la Investigación con el input}
+
+\lipsum[1-1]
+
+\dots se detallan en el Apéndice~\ref{AppendA}.
+
+\section{Teorías C  en el Desarrollo de la Investigación con el input}
+
+\lipsum[1-1]
+
+\dots en la Tabla \ref{table:movimientos_basicos}.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{| c | c | c|} 
+ \hline
+ \textbf{Modo} & \textbf{Articulaciones} & \textbf{Ruedas}\\ [0.3ex] 
+ \hline \hline
+ Avanza & $J_1=J_4=512$, $J_2=J_3=-512$ & $W_1=W_3=-v$, $W_2=W_4=v$  \\ 
+ \hline
+ Retrocede & $J_1=J_4=512$, $J_2=J_3=-512$ & $W_1=W_3=v$, $W_2=W_4=-v$  \\
+ \hline \hline 
+ Giro CCW & $J_1=J_2=J_3=J_4=0$ & $W_1=W_2=W_3=W_4=v$ \\
+ \hline 
+ Giro CW & $J_1=J_2=J_3=J_4=0$ & $W_1=W_2=W_3=W_4=-v$  \\ %[1ex] 
+ \hline \hline 
+ Derecha & $J_1=J_4=-512$, $J_2=J_3=512$ & $W_1=W_2=-v$, $W_3=W_4=v$  \\ %[1ex] 
+ \hline
+ Izquierda & $J_1=J_4=-512$, $J_2=J_3=512$ & $W_1=W_2=v$, $W_3=W_4=-v$  \\
+ \hline
+\end{tabular}
+\caption[Movimientos Básicos Programados]
+	{Movimientos Básicos Programados. $J_i$ es el valor de la posición para el servomotor que controla la articulación de la i-ésima extremidad, y donde $W_i$ es el valor de la velocidad de la rueda de la i-ésima extremidad.  Fuente: Elaboración propia.}
+\label{table:movimientos_basicos}
+\end{table}
+
+\section{Metodología E  en el Desarrollo de la Investigación con el input}
+\lipsum[1-1]
+
+\begin{lstlisting}[language=Python, caption=Ejemplo en Python, label={lst:alg1}, numbers=left]
+import numpy as np
+    
+def sum(x,y):
+    return x + y
+\end{lstlisting}
+
+\lipsum[1-1]
+
+\dots el Algoritmo \ref{lst:alg1}.
+
+%\afterpage{\blankpage}
