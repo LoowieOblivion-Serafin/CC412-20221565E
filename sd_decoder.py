@@ -44,7 +44,7 @@ logger = logging.getLogger(__name__)
 # CONSTANTES DEL STACK FASE 2
 # ============================================================================
 
-SD_UNCLIP_REPO = "stabilityai/stable-diffusion-2-1-unclip"
+SD_UNCLIP_REPO = "diffusers/stable-diffusion-2-1-unclip-i2i-l"
 SD_DTYPE = torch.bfloat16  # bf16 evita NaN en tasks con mean-subtraction (ver MIGRATION.md §3.2)
 
 # Cache local de pesos HF (dentro del repo para no mezclar con ~/.cache)
