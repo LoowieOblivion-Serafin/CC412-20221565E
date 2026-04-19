@@ -1,212 +1,72 @@
-# 🧠 Reconstrucción de Imágenes Mentales desde Actividad Cerebral
+# 🧠 Reconstrucción de Imágenes Mentales desde Actividad Cerebral (fMRI a Stable Diffusion)
 
-Proyecto que convierte señales fMRI del cerebro humano en imágenes visuales reconstruidas.
+Proyecto que convierte señales fMRI del cerebro humano en imágenes visuales reconstruidas utilizando Modelos de Difusión.
 
 ## Descripción
 
-Este proyecto implementa un sistema de decodificación neuronal que:
-- **Lee señales cerebrales** (fMRI) de personas viendo imágenes
-- **Extrae características visuales** mediante redes neuronales (CLIP, VGG19)
-- **Reconstruye las imágenes mentales** usando un generador VQGAN optimizado
+Este proyecto forma parte de una investigación de tesis centrada en la decodificación neuronal. Su objetivo es "leer" características visuales directamente desde la actividad cerebral de un sujeto humano y reconstruirlas visualmente empleando modelos de generación de estado del arte.
 
-El sistema permite "ver" qué está visualizando una persona analizando solo su actividad cerebral.
+**Evolución del Proyecto (Fase 2):**
+Anteriormente, el pipeline (Fase 1) dependía de la arquitectura bayesiana de Koide-Majima et al. (2024), empleando VQGAN + VGG19. Sin embargo, su desempeño se veía severamente obstaculizado, operando casi a niveles de azar. En la **Fase 2 actual**, hemos migrado radicalmente hacia la arquitectura **Stable Diffusion 2.1 unCLIP**. Ahora, los tensores extraídos del córtex visual se introducen como embebimientos condicionantes directos en el espacio latente de difusión, incrementando drásticamente el fotorrealismo y la coherencia semántica.
 
-## Características
+## Características Principales
 
-✅ **Paper-Accurate Implementation** - Algoritmo validado científicamente  
-✅ **CLIP Augmentation** - 32 crops aumentados para máxima calidad  
-✅ **Mean Feature Subtraction** - Elimina bias para mejor convergencia  
-✅ **Correlation Loss** - Más robusto que MSE en espacios de alta dimensión  
-✅ Procesa datos de 3 sujetos (S01, S02, S03) con 26 imágenes cada uno  
-✅ Pipeline completo end-to-end desde features cerebrales a imágenes  
-✅ Descarga automática de modelos pre-entrenados (~4GB)  
-✅ **Soporte GPU** (CUDA) - 4x más rápido que CPU  
-✅ Configuración flexible con múltiples modos de calidad
+✅ **Arquitectura unCLIP** - Condicionamiento directo vía CLIP embeddings (espacio latente fMRI).  
+✅ **Priorización Semántica** - Moduladores textuales de mitigación de padding gaussiano integrados para estabilidad de red UNet.  
+✅ **Optimización RTX 4070 Ti** - Uso estricto de atenciones `xformers` y tensores `bfloat16`.  
+✅ **Reproducibilidad Rigurosa** - Semillas bloqueadas globalmente para inferencia bit-exacta.  
+✅ **Compatibilidad Multi-Sujeto** - Pipelines de procesamiento masivo para S01, S02 y S03.  
 
-## Diferencias con la Investigación Original
+## Diferencias con la Baseline (VQGAN original)
 
-Este proyecto **reimplementa y mejora** el algoritmo del paper científico:
-
-**Mejoras implementadas**:
-- ✅ **Multiplataforma** - Funciona en Windows/Linux/Mac (original solo Linux)
-- ✅ **GPU Auto-detection** - Detecta y usa CUDA automáticamente
-- ✅ **Configuración Flexible** - 3 modos de calidad (fast/standard/high_quality)
-- ✅ **Documentación Completa** - Guías paso a paso en español
-- ✅ **Verificación Automática** - Script `check_setup.py` valida instalación
-- ✅ **Logging Detallado** - Monitoreo de progreso en tiempo real
-
-**Algoritmo idéntico al paper**:
-- ✅ CLIP Augmentation (32 crops con transformaciones aleatorias)
-- ✅ CLIP Normalization específica [0.4814, 0.4578, 0.4082]
-- ✅ Mean Feature Subtraction para CLIP y VGG
-- ✅ Correlation Loss en lugar de MSE
-- ✅ Langevin Dynamics con ruido gaussiano cada 10 iteraciones
-
-## Quick Start
-
-### Opción A: Instalación Automática (Windows - Recomendado) 🚀
-
-```powershell
-# 1. Descargar/clonar este repositorio
-git clone https://github.com/LoowieOblivion-Serafin/PAM-IA-ACECOM.git
-cd ACECOM-Project
-
-# 2. Ejecutar instalador automático
-.\install.ps1
-
-# 3. El script automáticamente:
-#    - Clona los 3 repositorios necesarios
-#    - Verifica archivos de compatibilidad
-#    - Instala dependencias
-#    - Ejecuta verificación del setup
-```
-
-### Opción B: Instalación Manual (Todos los SO)
-
-```bash
-# 1. Clonar repositorios necesarios
-git clone https://github.com/nkmjm/mental_img_recon.git mental_img_recon-main
-git clone https://github.com/CompVis/taming-transformers.git taming-transformers-master
-git clone https://github.com/openai/CLIP.git CLIP-main
-
-# 2. Instalar dependencias (Python 3.12)
-py -3.12 -m pip install -r requirements_py312.txt
-
-# 3. Configurar PROJECT_ROOT en config.py (línea 22)
-# Ajustar la ruta a tu ubicación del proyecto
-
-# 4. Verificar instalación
-py -3.12 check_setup.py
-
-# 5. Ejecutar pipeline
-py -3.12 main_local_decoder.py
-
-# 6. Ver resultados
-explorer output_reconstructions  # Windows
-# open output_reconstructions    # Mac
-# xdg-open output_reconstructions # Linux
-```
-
-> **✅ VENTAJA**: Los fixes de compatibilidad se aplican **AUTOMÁTICAMENTE** al ejecutar:
-> - `patch_taming.py` - Arregla `torch._six` en taming-transformers SIN modificar el repo
-> - `pytorch_lightning_compat.py` - Arregla PyTorch Lightning 2.x
->
-> **No necesitas editar manualmente ningún archivo de repositorios externos**
-
-Para instrucciones detalladas de instalación y configuración, consulta **[SETUP.md](SETUP.md)**.
-
-## Estructura del Proyecto
-
-```
-ACECOM-Project/
-├── features/                    # Dataset (extraído de features.tar.gz)
-│   ├── decoded_features/        # Features cerebrales por sujeto
-│   └── meanDNNfeature/          # Features promedio
-├── mental_img_recon-main/       # Repositorio base
-├── taming-transformers-master/  # Arquitectura VQGAN
-├── CLIP-main/                   # Arquitectura CLIP
-├── main_local_decoder.py        # Script principal
-├── config.py                    # Configuración del proyecto
-└── output_reconstructions/      # Imágenes generadas (se crea automáticamente)
-```
+- 🚀 **Desempeño:** SD 2.1 unCLIP resuelve el colapso visual ("manchones abstractos") del optimizador Langevin.
+- ⚙️ **Velocidad:** Inferencia paralela, en contraposición a las extremas 1000 iteraciones requeridas por imagen en el optimizador iterativo anterior.
+- 🔬 **Validación Científica:** Uso de CFG controlada e inyección calculada de ruido espacial (`noise_level`).
 
 ## Requisitos del Sistema
 
-- **Python**: 3.12 (estable, recomendado) o 3.8+
-- **RAM**: 8GB mínimo, 16GB recomendado
-- **GPU**: NVIDIA con CUDA (opcional, acelera 4x)
-- **Espacio**: ~15GB (dataset + modelos)
+- **Python**: 3.12 (estable, recomendado).
+- **RAM**: 16 GB recomendado.
+- **GPU**: Tarjeta gráfica NVIDIA (Optimizado en RTX 4070 Ti, 12 GB VRAM).
+- **Espacio**: ~15GB para entorno condensado (Modelos SD 2.1 unCLIP + Datasets HF y Tensores fMRI).
 
-## Scripts Principales
+## Estructura del Proyecto
 
-### `main_local_decoder.py`
-Pipeline de reconstrucción completo. Lee features cerebrales y genera imágenes.
+```text
+ACECOM-Project/
+├── features/                    # Dataset fMRI Base 
+│   ├── decoded_features/        # Vectores pre-decodificados de S01, S02, S03 (ViT-B/32)
+├── output_sd_reconstructions/   # Carpeta generada auto con las inferencias unCLIP
+├── main_local_decoder.py        # [LEGACY] Script de la baseline original VQGAN
+├── sd_decoder.py                # [CORE] Implementación del Pipeline SD 2.1 unCLIP
+├── phase2_run_sd.py             # [SCRIPT] Main entry-point para inicializar inferencia
+├── evaluation.py                # [METRICS] Cálculo de PixCorr, SSIM, LPIPS y Pairwise
+├── config.py                    # Configuración estática
+└── MIGRATION.md                 # Informe técnico de la justificación arquitectónica
+```
 
-**Uso básico:**
+## Quick Start
+
+### Instalación Automática
+Por favor, asegúrate de estar operando en un entorno local y consulta la **[Guía Completa en SETUP.md](SETUP.md)** para una configuración de librerías seguras (`xformers`, `diffusers`).
+
+### Inferencia: Fase 2
+Para evaluar los features embebidos en el modelo de difusión, ejecuta el puente de inferencia end-to-end:
+
 ```bash
-py -3.12 main_local_decoder.py
+# Procesa todos los sujetos (S01, S02, S03):
+python phase2_run_sd.py
+
+# Smoke test (solo valida el primer sujeto, 3 imágenes máximo):
+python phase2_run_sd.py --subjects S01 --limit 3
 ```
 
-**Configuración rápida/estándar/alta:**
-Edita `ACTIVE_CONFIG` en `config.py` (`'fast'` / `'standard'` / `'high_quality'`)
+> **NOTA SOBRE DIMENSIONALIDAD**: El pipeline actualmente realiza un "shim padding" de los features extraídos (CLIP ViT-B/32 de 512d) a dimensionalidad ViT-L/14 (768d), que es requerida por SD 2.1 unCLIP.
 
-### `utils_visualization.py`
-Genera cuadrículas comparativas y reportes HTML.
+## Licencia & Créditos
 
-```bash
-py -3.12 utils_visualization.py
-```
-
-### `check_setup.py`
-Verifica que todo esté configurado correctamente antes de ejecutar.
-
-```bash
-py -3.12 check_setup.py
-```
-
-## Autor
-
-**Proyecto**: ACECOM - Decodificación de Imágenes Mentales  
-**Estudiante**: Alvaro Jesus Taipe Cotrina  
-**Institución**: Universidad Nacional de Ingeniería (UNI)  
-**Año**: 2025
-
-## Bibliografía e Inspiración
-
-### Paper Científico Original
-
-Este proyecto está **inspirado e implementa** el algoritmo descrito en:
-
-> **Koide-Majima, N., Nishimoto, S.** (2024). "Mental image reconstruction from human brain activity: Neural decoding of mental imagery via deep neural network-based Bayesian estimation"
-
-**Fundamento Científico**:
-
-El paper propone un método bayesiano para reconstruir imágenes mentales:
-
-1. **Codificador Cerebral** (f_enc): Mapea actividad fMRI → espacio de embeddings CLIP/VGG
-2. **Optimización Bayesiana**: Minimiza `L = L_CLIP + λ·L_VGG` usando dinámica de Langevin
-3. **Generador VQGAN**: Sintetiza imagen final desde el espacio latente optimizado
-
-**Ecuación Central**:
-```
-Pr(I|Φ_VGG, Φ_CLIP) ∝ Pr(Φ_VGG|I) × Pr(Φ_CLIP|I) × Pr(I)
-                       ↑              ↑              ↑
-                  Likelihood      Likelihood      Prior
-                  (Visual)       (Semántico)    (Natural)
-```
-
-### Repositorios Base
-
-Este proyecto utiliza y se basa en los siguientes repositorios:
-
-- **Implementación Original**: [nkmjm/mental_img_recon](https://github.com/nkmjm/mental_img_recon)
-  - Código fuente del paper
-  - Dataset de features cerebrales pre-extraídas
-  
-- **VQGAN**: [CompVis/taming-transformers](https://github.com/CompVis/taming-transformers)
-  - Esser et al. (2021) "Taming Transformers for High-Resolution Image Synthesis"
-  - Generador de imágenes de alta calidad
-  
-- **CLIP**: [openai/CLIP](https://github.com/openai/CLIP)
-  - Radford et al. (2021) "Learning Transferable Visual Models From Natural Language Supervision"
-  - Espacio latente multimodal
-
-### Dataset  
-**datos/fmri**: (https://drive.google.com/uc?id=1Q7TVsVbASMqnDYfFjFzo2SV6njExu8qq)
-El dataset `features.tar.gz` (NO incluido en GitHub por tamaño) contiene:
-
-- Features cerebrales pre-extraídas de fMRI
-- 3 sujetos (S01, S02, S03)
-- 26 imágenes por sujeto
-- Features CLIP (512-d) y VGG19 (4096-d por capa)
-
-**Obtención**: Descarga desde el repositorio original [nkmjm/mental_img_recon](https://github.com/nkmjm/mental_img_recon)
-
-## Licencia
-
-Este proyecto es con fines académicos y de investigación. Los modelos pre-entrenados (VQGAN, CLIP, VGG19) mantienen sus licencias originales.
+Este código es el resultado integral de una investigación de tesis de la Universidad Nacional de Ingeniería (UNI) (2025-2026) llevada a cabo por Alvaro Taipe. El diseño de la migración toma como base empírica refactorizar y modernizar los resultados exploratorios de Koide-Majima et al. (2024).
 
 ---
 
-**🚀 Para comenzar, consulta [SETUP.md](SETUP.md) para instrucciones detalladas de instalación.**
-
+**[Ir al manual de SETUP.md para instrucciones de entorno técnico]**

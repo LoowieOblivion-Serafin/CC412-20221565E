@@ -1,455 +1,114 @@
-# 🛠️ Guía de Instalación y Configuración
+# 🛠️ Guía de Instalación y Configuración (Fase 2 - Tesis)
 
-Esta guía detalla todos los pasos necesarios para replicar el pipeline de reconstrucción de imágenes mentales en cualquier máquina.
+Esta guía documenta la infraestructura tecnológica requerida para inicializar y desplegar la nueva arquitectura de **Stable Diffusion 2.1 unCLIP**, que ha reemplazado oficialmente el entorno heredado de VQGAN. 
 
-> **Actualización (Dic 2024)**: Este proyecto ahora incluye soporte GPU automático, CLIP augmentation de 32 crops, y algoritmo 100% alineado con el paper original para máxima calidad de reconstrucción.
+Para lograr tiempos de inferencia instantáneos y no desbordar (Out of Memory - OOM) la tarjeta gráfica (12GB VRAM en la RTX 4070 Ti), esta configuración exige estricta atención a la instalación de PyTorch y Xformers.
 
-## Requisitos del Sistema
+---
 
-### Hardware
-- **RAM**: 8GB mínimo (16GB recomendado)
-- **GPU**: NVIDIA con CUDA (opcional, acelera ~4x)
-- **Espacio en disco**: ~15GB
-  - Dataset: ~3GB
-  - Modelos VQGAN: ~4GB
-  - Modelos CLIP/VGG: ~1GB
-  - Salida: ~1GB
+## 1. Requisitos de Hardware y Software
 
-### Software
-- **Sistema Operativo**: Windows 10/11, Linux, o macOS
-- **Python**: **3.12 (recomendado y probado)** o 3.8+
-  - ⚠️ Python 3.14 puede generar warnings con NumPy
-  - ✅ Python 3.12 es la versión estable recomendada
-- **pip**: Actualizado (`python -m pip install --upgrade pip`)
-- **GPU (Opcional pero recomendado)**:
-  - NVIDIA GPU con CUDA 12.x
-  - Drivers NVIDIA actualizados
-  - **Beneficio**: 4x más rápido (5 min/imagen vs 20 min/imagen en CPU)
+- **GPU Objetivo**: NVIDIA con 12 GB VRAM (RTX 3060/4070 Ti etc.) con arquitectura compatible.
+- **Python**: **3.12** puro (Recomendamos evitar arquitecturas base Anaconda para evitar conflictos de pathing conda en Windows si no se controla adecuadamente).
+- **Controladores**: CUDA Toolkit 12.1 o superior.
+- **Memoria de Almacenamiento**: Mínimo de 15GB libres en SSD (SD 2.1 unCLIP pesa ~5GB al instanciarse en caché).
 
-## Instalación Paso a Paso
+---
 
-### 🚀 Método 1: Instalación Automática (Windows - Recomendado)
+## 2. Preparación del Entorno (Windows)
 
-Si estás en Windows, puedes usar el script de instalación automática que configura todo por ti:
+Si partes desde cero, crea un entorno virtual (venv) para aislar las variables del entorno del sistema:
 
 ```powershell
-# 1. Descargar/clonar este repositorio
-git clone https://github.com/LoowieOblivion-Serafin/PAM-IA-ACECOM.git
-cd ACECOM-Project
+# Instanciar el entorno
+python -m venv env_tesis
 
-# 2. Ejecutar instalador
-.\install.ps1
+# Activar el entorno
+.\env_tesis\Scripts\Activate.ps1
 ```
-
-**El script automáticamente**:
-- ✅ Verifica Python 3.12
-- ✅ Clona los 3 repositorios externos (mental_img_recon, taming-transformers, CLIP)
-- ✅ Verifica archivos de compatibilidad (patch_taming.py, pytorch_lightning_compat.py)
-- ✅ Instala todas las dependencias de Python
-- ✅ Ejecuta verificación del setup con `check_setup.py`
-
-**Después del script, solo necesitas**:
-1. Extraer dataset `features.tar.gz`
-2. Ejecutar `py -3.12 main_local_decoder.py`
 
 ---
 
-### 📝 Método 2: Instalación Manual (Todos los SO)
+## 3. Instalación Base: PyTorch + CUDA
 
-### 1. Estructura de Directorios
+SD 2.1 unCLIP usa redes convolucionales extensas. Debemos asegurar que PyTorch corra la compilación correcta local contra los Tensor Cores de NVIDIA.
 
-Crea y organiza el proyecto en la siguiente estructura:
+Ejecuta lo siguiente para empalmar con **CUDA 12.1**:
 
-```
-ACECOM-Project/
-├── features/                    # Dataset (extraer aquí)
-│   ├── decoded_features/
-│   │   ├── S01/
-│   │   │   ├── CLIP_ViT-B_32/lastLayer/
-│   │   │   │   └── *.pkl (26 archivos)
-│   │   │   └── VGG19/
-│   │   │       ├── features_layer7/*.pkl
-│   │   │       ├── features_layer16/*.pkl
-│   │   │       ├── features_layer25/*.pkl
-│   │   │       └── features_layer34/*.pkl
-│   │   ├── S02/ (misma estructura)
-│   │   └── S03/ (misma estructura)
-│   └── meanDNNfeature/
-│       ├── CLIP_ViT-B_32/lastLayer/meanFeature_.mat
-│       └── VGG19/{layer_name}/meanFeature_.mat
-├── mental_img_recon-main/       # Clonar repositorios
-├── taming-transformers-master/
-├── CLIP-main/
-├── main_local_decoder.py
-├── config.py
-└── requirements.txt
-```
-
-### 2. Clonar Repositorios
-
-```bash
-# Repositorio principal (mental_img_recon)
-git clone https://github.com/nkmjm/mental_img_recon.git mental_img_recon-main
-
-# VQGAN (taming-transformers)
-git clone https://github.com/CompVis/taming-transformers.git taming-transformers-master
-
-# CLIP
-git clone https://github.com/openai/CLIP.git CLIP-main
-```
-
-### 3. Extraer Dataset
-
-El archivo `features.tar.gz` ya debe estar descargado del repositorio original.
-
-```bash
-# Extraer en el directorio del proyecto
-tar -xzf features.tar.gz
-
-# Verificar estructura
-ls features/decoded_features/S01/CLIP_ViT-B_32/lastLayer/
-# Debe mostrar ~26 archivos .pkl con nombres como: imagery__*.pkl
-```
-
-### 4. Archivos de Compatibilidad (Incluidos en el Proyecto)
-
-El proyecto incluye **parches automáticos** que se aplican al ejecutar, sin necesidad de modificar repositorios externos:
-
-#### ✅ `patch_taming.py` - Auto-patch para taming-transformers
-
-Este archivo crea un módulo virtual `torch._six` **antes** de importar taming-transformers, evitando el error:
-```
-ModuleNotFoundError: No module named 'torch._six'
-```
-
-**Ventaja**: No necesitas modificar manualmente `taming-transformers-master/taming/data/utils.py`
-
-**Cómo funciona**:
-1. Se ejecuta al inicio de `main_local_decoder.py`
-2. Crea `sys.modules['torch._six']` con `string_classes = str`
-3. taming-transformers lo importa sin errores
-
-#### ✅ `pytorch_lightning_compat.py` - Fix para PyTorch Lightning 2.x
-
-Mapea el import path antiguo `pytorch_lightning.utilities.distributed` al nuevo módulo reorganizado en PyTorch Lightning 2.x.
-
-**Ambos parches se aplican AUTOMÁTICAMENTE** - no requieren intervención manual.
-
----
-
-### 5. Instalar Dependencias
-
-#### Opción A: Instalación con Python 3.12 (Recomendada)
-
-```bash
-py -3.12 -m pip install -r requirements_py312.txt
-```
-
-#### Opción B: Instalación manual con GPU
-
-**Para GPU NVIDIA (CUDA 12.1 - Recomendado)**:
-
-```bash
-# PyTorch con soporte GPU (2.5 GB)
+```powershell
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-
-# Librerías requeridas
-pip install numpy ftfy regex tqdm omegaconf scipy Pillow pytorch-lightning
 ```
 
-**Para CPU solamente** (si no tienes GPU):
-
-```bash
-# PyTorch CPU-only (más ligero)
-pip install torch torchvision torchaudio
-
-# Librerías requeridas
-pip install numpy ftfy regex tqdm omegaconf scipy Pillow pytorch-lightning
-```
-
-**Importante para Windows**: Usa Python 3.12:
+#### Verificación Obligatoria de Hardware:
+Ejecuta esto para asegurarte que estás atado a la gráfica de renderizado, y no al procesador, algo que destruiría el tiempo de vida de la investigación:
 
 ```powershell
-py -3.12 -m pip install -r requirements.txt
+python -c "import torch; print('CUDA Ready:', torch.cuda.is_available(), '| GPU:', torch.cuda.get_device_name(0))"
 ```
-
-#### Verificar GPU (Importante!)
-
-Después de instalar PyTorch, **verifica que tu GPU sea detectada**:
-
-```bash
-py -3.12 -c "import torch; print(f'CUDA disponible: {torch.cuda.is_available()}'); print(f'GPU: {torch.cuda.get_device_name(0) if torch.cuda.is_available() else \"No detectada\"}')"
-```
-
-**Salida esperada con GPU**:
-```
-CUDA disponible: True
-GPU: NVIDIA GeForce RTX 2070  # (o tu modelo)
-```
-
-**Si dice "False"**: Estás usando PyTorch CPU. Reinstala con la Opción B (GPU) arriba.
-
-### 5. Configuración
-
-El archivo `config.py` contiene toda la configuración del proyecto.
-
-#### Ajustar Ruta del Proyecto (si es necesario)
-
-**En Windows**, edita `config.py` línea ~10:
-
-```python
-PROJECT_ROOT = Path("C:/Users/ALVARO/Escritorio/Deco-EGG/ACECOM-Project")
-```
-
-**En Linux/Mac**, cambia a:
-
-```python
-PROJECT_ROOT = Path.home() / "projects" / "ACECOM-Project"
-```
-
-#### Configurar Modo de Ejecución
-
-Edita `config.py` para elegir velocidad vs calidad:
-
-```python
-# Prueba rápida (200 iteraciones, ~2 min/imagen GPU)
-ACTIVE_CONFIG = 'fast'
-
-# Calidad estándar (500 iteraciones, ~5 min/imagen GPU)
-ACTIVE_CONFIG = 'standard'  # ← RECOMENDADO
-
-# Alta calidad (1000 iteraciones, ~10 min/imagen GPU)
-ACTIVE_CONFIG = 'high_quality'
-```
-
-## Verificación del Setup
-
-Antes de ejecutar el pipeline, verifica que todo esté configurado:
-
-```bash
-py -3.12 check_setup.py
-```
-
-**Salida esperada:**
-
-```
-✅ Python 3.12 detectado
-✅ Directorio del proyecto encontrado
-✅ Dataset features/ encontrado
-✅ Sujeto S01: 26 archivos CLIP, 26×4 archivos VGG
-✅ Sujeto S02: 26 archivos CLIP, 26×4 archivos VGG
-✅ Sujeto S03: 26 archivos CLIP, 26×4 archivos VGG
-✅ PyTorch instalado
-✅ GPU CUDA disponible (opcional)
-
-📊 Total de imágenes a procesar: 78
-⏱️ Tiempo estimado (GPU): ~6.5 horas
-```
-
-## Ejecución
-
-### Ejecutar Pipeline Completo
-
-```bash
-py -3.12 main_local_decoder.py
-```
-
-**Qué hace el script:**
-
-1. ✅ Verifica rutas y configuración
-2. ✅ Descarga checkpoints VQGAN (~4GB) si no existen
-3. ✅ Carga modelos (VQGAN, CLIP, VGG19)
-4. ✅ Procesa 78 imágenes (26 por sujeto × 3 sujetos)
-5. ✅ Guarda resultados en `output_reconstructions/`
-
-### Monitorear Progreso
-
-El script muestra progreso en tiempo real:
-
-```
-[1/26] Reconstruyendo: black_+
-Iter 100/500 | Loss_CLIP: 0.23 | Loss_VGG: 1.45
-Iter 200/500 | Loss_CLIP: 0.18 | Loss_VGG: 0.92
-...
-✅ Guardado: output_reconstructions/S01/S01_black_+_reconstructed.png
-```
-
-También se guarda un log completo:
-
-```bash
-tail -f output_reconstructions/reconstruction.log
-```
-
-## Parámetros Avanzados
-
-### Ajustar Iteraciones y Learning Rate
-
-Edita `main_local_decoder.py` en la función `reconstruct_image()`:
-
-```python
-reconstructed_image = reconstruct_image(
-    ...,
-    num_iterations=500,    # Más iteraciones = mayor calidad
-    lr=0.05,               # Learning rate (0.01-0.1)
-    lambda_vgg=0.1         # Peso de VGG vs CLIP
-)
-```
-
-### Procesar Solo Algunos Sujetos
-
-Edita `config.py`:
-
-```python
-PROCESSING_CONFIG = {
-    'subjects': ['S01'],  # Solo S01 (26 imágenes)
-    # 'subjects': ['S01', 'S02', 'S03'],  # Todos (78 imágenes)
-}
-```
-
-### Capas VGG Activas
-
-Edita `config.py` para usar diferentes capas:
-
-```python
-MODEL_CONFIG = {
-    'vgg_active_layers': [
-        'features_layer7',   # Capas tempranas (bordes, texturas)
-        'features_layer16',
-        'features_layer25',
-        'features_layer34'   # Capas profundas (objetos, semántica)
-    ]
-}
-```
-
-## Solución de Problemas
-
-### Error: UnicodeEncodeError con símbolos ✓ ⚠
-
-**Problema**: Errores de encoding en consola Windows con símbolos Unicode.  
-**Solución**: Ejecuta esto en PowerShell **antes** de correr el script:
-
-```powershell
-$env:PYTHONUTF8=1
-py -3.12 main_local_decoder.py
-```
-
-Esto fuerza a Python a usar UTF-8 en lugar de cp1252.
-
-### Error: "Python version mismatch"
-
-**Problema**: Python 3.14 genera warnings de Numpy.  
-**Solución**: Usa Python 3.12:
-
-```bash
-py -3.12 main_local_decoder.py
-```
-
-### Error: "FileNotFoundError: features/"
-
-**Problema**: Dataset no está en la ubicación correcta.  
-**Solución**: Verifica `config.py` y asegúrate de que `PROJECT_ROOT` apunta al directorio correcto.
-
-```bash
-# Windows
-cd C:\Users\ALVARO\Escritorio\Deco-EGG\ACECOM-Project
-dir features\decoded_features\S01
-
-# Linux/Mac
-ls features/decoded_features/S01
-```
-
-### Error: "CUDA out of memory"
-
-**Problema**: GPU tiene poca memoria.  
-**Solución**: Forzar CPU en `main_local_decoder.py`:
-
-```python
-# Línea ~100
-device = torch.device("cpu")
-```
-
-### Error: "SSL: CERTIFICATE_VERIFY_FAILED"
-
-**Problema**: Error descargando checkpoints VQGAN.  
-**Solución**: El script ya tiene un fix automático. Si persiste, descarga manualmente:
-
-```bash
-# Crear directorio
-mkdir -p taming-transformers-master/logs/vqgan_imagenet_f16_1024/checkpoints
-
-# Descargar checkpoints
-wget https://heibox.uni-heidelberg.de/f/867b05fc8c4841768640/?dl=1 \
-  -O taming-transformers-master/logs/vqgan_imagenet_f16_1024/checkpoints/last.ckpt
-```
-
-### Imágenes Borrosas o de Baja Calidad
-
-**Solución**: Aumenta iteraciones y reduce learning rate:
-
-```python
-num_iterations = 1000
-lr = 0.03
-```
-
-### Proceso Muy Lento (CPU)
-
-**Estimaciones**:
-- GPU: ~5 min/imagen → 6.5 horas total
-- CPU: ~20 min/imagen → 26 horas total
-
-**Recomendaciones**:
-1. Usar GPU con CUDA instalado
-2. Reducir iteraciones a 200-300 para pruebas
-3. Procesar solo 1 sujeto primero
-
-## Validación de Resultados
-
-### Verificar Output
-
-```bash
-ls output_reconstructions/S01/
-# Debe mostrar 26 archivos .png
-
-# Ver una imagen
-# Windows: start output_reconstructions/S01/S01_black_+_reconstructed.png
-# Linux: xdg-open output_reconstructions/S01/S01_black_+_reconstructed.png
-# Mac: open output_reconstructions/S01/S01_black_+_reconstructed.png
-```
-
-### Generar Reporte Visual
-
-```bash
-py -3.12 utils_visualization.py
-```
-
-Esto crea:
-- `S01_grid.png`, `S02_grid.png`, `S03_grid.png` - Cuadrículas de todas las imágenes
-- `report.html` - Reporte interactivo (abre en navegador)
-
-## Timepo Estimado de Ejecución
-
-| Configuración | Iteraciones | GPU (CUDA) | CPU |
-|---------------|-------------|------------|-----|
-| fast | 200 | ~2.6 horas | ~10.4 horas |
-| standard | 500 | ~6.5 horas | ~26 horas |
-| high_quality | 1000 | ~13 horas | ~52 horas |
-
-*Tiempos para 78 imágenes (3 sujetos × 26 imágenes)*
-
-## Próximos Pasos
-
-1. ✅ Ejecutar `check_setup.py` para verificar
-2. ✅ Ejecutar `main_local_decoder.py` para reconstruir
-3. ✅ Revisar resultados en `output_reconstructions/`
-4. ✅ Generar visualizaciones con `utils_visualization.py`
-
-## Referencias Técnicas
-
-- **Paper**: Koide-Majima et al. (2024) - Mental image reconstruction from human brain activity
-- **VQGAN**: Esser et al. (2021) - Taming Transformers
-- **CLIP**: Radford et al. (2021) - Learning Transferable Visual Models
-- **VGG**: Simonyan & Zisserman (2014) - Very Deep Convolutional Networks
 
 ---
 
-**¿Problemas?** Consulta el log detallado en `output_reconstructions/reconstruction.log` o revisa el código en `main_local_decoder.py` (está comentado extensivamente).
+## 4. Instalación de Difusión (Diffusers + Xformers)
+
+Los núcleos estables de reconstrucción precisan librerías nativas publicadas por HuggingFace.
+
+Para instalar todos los dependientes explícitos de tu `requirements_py312.txt`:
+
+```powershell
+pip install -r requirements_py312.txt
+```
+
+> **📌 NOTA SOBRE XFORMERS**: 
+> Este entorno está diseñado para descargar `xformers` (incluido en los _requirements_). Esta librería inyecta una _"Atención Eficiente en Memoria"_ (Memory Efficient Attention) en el modelo de Stable Diffusion. 
+> Gracias a esto, el sistema comprimirá el pico lógico de uso en inferencia desde 9 GB de VRAM a escasos 5 GB, facilitando cargas extra.
+
+---
+
+## 5. Estructura y Datasets Obtenidos
+
+Tu ecosistema actual del root del repositorio debe parecerse a este formato:
+
+```text
+ACECOM-Project/
+├── features/                    # Data inicial sin procesar (descargar de drive).
+│   ├── decoded_features/
+│   │   ├── S01/                 # ~26 tensores viT-B_32 por paciente
+│   │   ├── S02/ 
+│   │   └── S03/ 
+├── models_hf/                   # (Auto-generada) Modelos HF cacheados offline
+├── output_sd_reconstructions/   # (Auto-generada) Destino de Inferencia fMRI -> Imágenes
+├── sd_decoder.py                # Red Difusora
+└── phase2_run_sd.py             # Runtime principal
+```
+
+*Importante:* A diferencia del módulo Fase 1 heredado, **ya no requerimos clonar el repositorio de OpenAI CLIP ni el Taming Transformers**. `Diffusers` administra los modelos en una capa de caja negra estandarizada que se descarga solitaria a la carpeta `/models_hf/`.
+
+---
+
+## 6. Ejecución y Validaciones de Estado (Smoke Checks)
+
+Para asegurar que los Tensores de cerebros son compatibles de leer y alimentar a la Red de Difusión y asegurar la estabilidad de la semántica de la red UNet mediante los *Priors de estabilización gaussianos*. 
+
+Prueba este comando que limita la generación a sólo 3 imágenes para confirmar que no ocurran cuelgues térmicos o faltas de módulos.
+
+```powershell
+python phase2_run_sd.py --limit 3 --subjects S01
+```
+
+Una corrida inicial exitosa descargará los pesos (`fp16/safetensors`) del HuggingFace Hub, inicializará el programador `DPMSolverMultistepScheduler` (por defecto fijado a solo 25 pasos), e inyectará la semilla global en la matemática tensorial, escupiendo algo como:
+`[S01] (1/3) imagen_x.pkl -> S01_imagen_x_sd_unclip.png`
+
+**Ejecución Completa (Inferencia Total)**
+Una vez verificado, ejecuta el dataset entero (para S01, S02, S03):
+
+```powershell
+python phase2_run_sd.py
+```
+
+### Problemas Frecuentes:
+
+1. **El output parece "Texto / ruido periódico difuminado"**
+Esto comúnmente ocurría si intentabas introducir tensores de fMRI mapeados a dimensionalidad `512` explícitamente sobre el UNet sin el "padding semántico inverso" o inyecciones de Priors como base textuales. Revisa el valor `noise_level` (ideal 250) en el módulo de reconstrucción, que actualmente ya está aplicado por defecto.
+
+2. **La advertencia `SHIM ACTIVO` en consola**
+Tu dataset original proyectó a espacios de características genéricos `ViT-B/32`, el modulo StableUnClip requiere `ViT-L/14` explícito. Esta bandera asume la traducción usando empaquetados espaciales, es intencional y vital para esta fase.
