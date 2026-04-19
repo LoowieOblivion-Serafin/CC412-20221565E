@@ -33,16 +33,21 @@ Anteriormente, el pipeline (Fase 1) dependía de la arquitectura bayesiana de Ko
 ## Estructura del Proyecto
 
 ```text
-ACECOM-Project/
-├── features/                    # Dataset fMRI Base 
-│   ├── decoded_features/        # Vectores pre-decodificados de S01, S02, S03 (ViT-B/32)
-├── output_sd_reconstructions/   # Carpeta generada auto con las inferencias unCLIP
-├── main_local_decoder.py        # [LEGACY] Script de la baseline original VQGAN
-├── sd_decoder.py                # [CORE] Implementación del Pipeline SD 2.1 unCLIP
-├── phase2_run_sd.py             # [SCRIPT] Main entry-point para inicializar inferencia
-├── evaluation.py                # [METRICS] Cálculo de PixCorr, SSIM, LPIPS y Pairwise
-├── config.py                    # Configuración estática
-└── MIGRATION.md                 # Informe técnico de la justificación arquitectónica
+C:.
+├───features/                    # Dataset fMRI (Vectores viT-B_32 y VGG19 de S01, S02, S03)
+├───output_reconstructions/      # Imágenes Decodificadas (SD unCLIP + baseline results)
+│   ├───RTX_4070_results/        # Experimento Fase 2
+│   └───S01/, S02/               # Logs por paciente
+├───Papers/                      # Contextualización de la neurociencia y papers referenciales
+├───PlantillaTesis_v01/          # Formato LaTeX oficial UNI
+├───main_local_decoder.py        # [LEGACY] Baseline fMRI -> VQGAN
+├───sd_decoder.py                # [CORE] Implementación núcleo del Pipeline SD 2.1 unCLIP
+├───phase2_run_sd.py             # [SCRIPT] Invocador principal Difusión Tensor a Imagen
+├───evaluation.py                # Lógica de métricas comparables (SSIM, PixCorr, etc)
+├───config.py                    # Configuración estática y control del baseline
+├───MIGRATION.md                 # Documento técnico migratorio de VQGAN a SD
+├───Hoja_de_Ruta_Tesis.md        # Plan de trabajo estructurado de Tesis
+└───[Repositorios Externos]      # CLIP-main, taming-transformers-master, etc.
 ```
 
 ## Quick Start
