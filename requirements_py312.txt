@@ -44,6 +44,15 @@ lpips>=0.1.4            # Distancia perceptual (opcional pero recomendado)
 # pickle5 NO ES NECESARIO en Python >= 3.8 (ya viene integrado)
 
 # ============================================================================
+# FASE 2: Stable Diffusion 2.1 unCLIP
+# ============================================================================
+diffusers>=0.27.0       # Pipelines de difusion (StableUnCLIPImg2ImgPipeline)
+accelerate>=0.28.0      # Offloading / device map / mixed precision
+transformers>=4.38.0    # Requerido por diffusers para tokenizers/CLIP
+safetensors>=0.4.0      # Formato de pesos preferido por diffusers
+xformers>=0.0.22        # Memory-efficient attention (RTX 4070 Ti)
+
+# ============================================================================
 # UTILIDADES
 # ============================================================================
 matplotlib>=3.4.0       # Visualizacion (opcional)
