@@ -70,10 +70,14 @@ SD_CACHE_DIR = config.PROJECT_ROOT / "models_hf"
 #   - "multiple objects" → fuerza una única escena dominante (reduce varianza)
 SD_NEGATIVE_PROMPT = "blurry, noise, abstract, deformed, chaotic, multiple objects"
 
-# Prompt de texto: VACÍO intencional. El condicionamiento viene 100% del
-# embedding visual del cerebro (image_embeds). Un prompt de texto aquí
-# contaminaría la señal fMRI con priors lingüísticos que no queremos medir.
-SD_EMPTY_PROMPT = ""
+# Prompts textuales de estabilización (Priors visuales). 
+# Fueron omitidos erróneamente por el script anterior dejándolo ciego.
+# Estos prompts anclarán la semántica para que la imagen cobre forma realista.
+SD_PRIOR_PROMPTS = [
+    "A clear, high-quality photograph of a natural scene, realistic, defined shapes",
+    "A vivid visual memory, highly detailed, photorealistic perception",
+    "A coherent object or landscape, high resolution, sharp focus, real life"
+]
 
 
 # ============================================================================
@@ -183,9 +187,10 @@ def load_sd_unclip_pipeline(
 def reconstruct_from_embedding(
     pipeline: StableUnCLIPImg2ImgPipeline,
     brain_clip_embedding: torch.Tensor,
+    prompt: str = SD_PRIOR_PROMPTS[0],
     num_inference_steps: int = 30,
     guidance_scale: float = 10.0,
-    noise_level: int = 0,
+    noise_level: int = 250,
     negative_prompt: str = SD_NEGATIVE_PROMPT,
     seed: int | None = 42,
     output_height: int = 768,
@@ -280,7 +285,7 @@ def reconstruct_from_embedding(
     # positivo). El negative_prompt sí se usa para CFG negativa.
     with torch.no_grad():
         result = pipeline(
-            prompt=SD_EMPTY_PROMPT,
+            prompt=prompt,
             image_embeds=brain_clip_embedding,
             negative_prompt=negative_prompt,
             num_inference_steps=num_inference_steps,

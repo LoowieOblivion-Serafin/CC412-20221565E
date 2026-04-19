@@ -57,7 +57,7 @@ import config
 from sd_decoder import (
     load_sd_unclip_pipeline,
     reconstruct_from_embedding,
-    SD_NEGATIVE_PROMPT,
+    SD_PRIOR_PROMPTS,
 )
 
 # ============================================================================
@@ -233,12 +233,13 @@ def run_subject(
         brain_embed = adapt_embedding_to_unclip(clip_feat)  # (1, 768)
 
         try:
+            current_prompt = SD_PRIOR_PROMPTS[idx % len(SD_PRIOR_PROMPTS)]
             img = reconstruct_from_embedding(
                 pipeline,
                 brain_embed,
+                prompt=current_prompt,
                 num_inference_steps=num_inference_steps,
                 guidance_scale=guidance_scale,
-                negative_prompt=SD_NEGATIVE_PROMPT,
                 seed=GLOBAL_SEED,  # mismo embed + mismo seed = mismo output
             )
             img.save(out_path)
