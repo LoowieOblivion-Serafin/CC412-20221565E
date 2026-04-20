@@ -10,6 +10,10 @@
 
 ---
 
+## Pivote Metodológico (Fase 2 - NSD Pivot)
+**Diagnóstico de Falla:** El intento de inyectar las características de Koide-Majima (512-d de ViT-B/32) en modelos modernos como Stable Diffusion 2.1 unCLIP (que exigen 768-d de ViT-L/14) mediante *zero-padding* fracasó geométricamente. El modelo interpreta el relleno de ceros y la renormalización L2 como ruido de alta frecuencia, provocando alucinaciones ("carteles") y colapsando la generación.
+**Decisión Estratégica:** Abandonar los features pre-calculados del baseline antiguo. Se transiciona al **Natural Scenes Dataset (NSD)** (escáner 7T), extrayendo vóxeles puros de la máscara `nsdgeneral` para entrenar un *Adapter Ridge/MLP* nativo desde fMRI hacia CLIP ViT-L/14. Esto garantiza coherencia en el co-dominio de características para SD 2.1 unCLIP.
+
 ## Estructura Capitular y Redacción
 
 ### Capítulo 1: Introducción y Planteamiento del Problema
@@ -32,8 +36,8 @@
 
 ### Capítulo 4: Fases de Experimentación y Desarrollo SOTA
 **Misión:** La narración de la ejecución técnica (el núcleo temporal trazado para tu investigación de Tesis 1).
-* **Recolección y Armonización:** Integración del preprocesamiento formal con los Set de datos extraídos (ej. *Natural Scenes Dataset - NSD* o los datos base de *Koide-Majima*).
-* **Experimentos de Ablación y Entrenamiento:** Descripción de la rama en GitHub donde se gestó la generación (*rtx4070ti-execution*) donde el decodificador reemplaza iterativamente predicciones nulas por predicciones semánticamente guiadas por CLIP.
+* **Recolección y Armonización:** Transición oficial de los datos base de *Koide-Majima* hacia el *Natural Scenes Dataset (NSD)*. Preprocesamiento masivo de HDF5 de vóxeles betas `nsdgeneral` ($~10,000$ a $~14,000$ dimensiones).
+* **Experimentos de Ablación y Entrenamiento:** Descripción de la rama en GitHub donde se gestó la generación (*pivot-nsd* en *rtx4070ti-execution*). Entrenamiento del regresor Ridge / Adapter para ViT-L/14. El decodificador reemplaza iterativamente predicciones nulas por predicciones semánticamente guiadas por CLIP sin parches de *zero-padding*.
 
 ### Capítulo 5: Resultados, Métricas Numéricas y Discusión
 **Misión:** Tabulación de la mejora. Tu meta final evaluativa en contraposición con tu baseline.

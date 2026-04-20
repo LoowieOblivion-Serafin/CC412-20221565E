@@ -95,19 +95,18 @@ Medición esperada post-traslado: 25 imágenes × 500 iter en RTX 4070 Ti deber�
 
 ---
 
-## 4. Fase 2 — Migración a Stable Diffusion 2.1 unCLIP
+## 4. Fase 2 — Migración a Stable Diffusion 2.1 unCLIP y Pivote NSD
 
-### 4.1 Racional
+### 4.1 Racional Inicial y Falla Estructural
+VQGAN (2020, f=16, codebook 1024 tokens) está obsoleto como generador para tareas de reconstrucción fina. SD 2.1 (2022) usa un VAE continuo + UNet condicional con mucha más capacidad generativa, y la variante **unCLIP** acepta un embedding CLIP como condición.
 
-VQGAN (2020, f=16, codebook 1024 tokens) está obsoleto como generador para tareas de reconstrucción fina. SD 2.1 (2022) usa un VAE continuo + UNet condicional con mucha más capacidad generativa, y la variante **unCLIP** acepta un embedding CLIP como condición — que es exactamente lo que produce la rama fMRI→CLIP del pipeline actual.
+**⚠️ El intento fallido (Zero-Padding en Dataset Original):**
+El dataset de Koide-Majima entrega features en 512-d (CLIP ViT-B/32 condicionado linealmente). SD 2.1 unCLIP exige 768-d (ViT-L/14). El parche matemático de añadir 256 ceros (*zero-padding*) + renormalización L2 falló catastróficamente. 
+**Diagnóstico:** Los espacios latentes de ViT-B/32 y ViT-L/14 no son co-lineales ni submúltiplos; son manifolds independientes. El UNet interpreta la parte vacía/escalada del tensor como ruido fuera-de-distribución (OOD) de altísima frecuencia, degenerando en marcadores o "carteles" con tipografía alucinada y destruyendo cualquier retención semántica formal.
 
-Además, SD 2.1 unCLIP elimina **dos de las tres fallas** diagnosticadas:
-- **Falla 2 (codebook discreto):** el VAE de SD es continuo, sin proyección a codebook.
-- **Falla 1 (ambigüedad CLIP):** el prior aprendido del UNet actúa como regularizador natural del espacio de imágenes plausibles; no buscamos una z arbitraria que satisfaga el vector CLIP, sino que generamos muestras del manifold aprendido.
+Por ende, **la regresión lineal fMRI → CLIP-emb DEBE realizarse apuntando al espacio correcto de ViT-L/14 desde el inicio.** Como el dataset pre-procesado antiguo está encapsulado permanentemente a 512-d, se hace ineludible migrar al Natural Scenes Dataset (NSD).
 
-La falla 3 (ajuste al promedio lineal) es ortogonal al generador — se ataca con un **adapter fMRI→CLIP-emb** entrenable (LoRA) que aprenda a predecir embeddings CLIP de muestras específicas, no el promedio.
-
-### 4.2 Arquitectura target
+### 4.2 Arquitectura Target (NSD-Pivot Pivot)
 
 ```
 ┌──────────────────┐   ┌──────────────────────┐   ┌─────────────────────┐   ┌──────────┐
@@ -120,9 +119,9 @@ La falla 3 (ajuste al promedio lineal) es ortogonal al generador — se ataca co
 ```
 
 Componentes:
-- **Entrada:** vector de vóxeles fMRI (mismo dataset Koide-Majima que Fase 1).
-- **Adapter:** MLP o ridge-regression + LoRA, entrena `fMRI → z_CLIP` con supervisión directa del embedding CLIP ViT-L/14 de la imagen ground-truth.
-- **SD 2.1 unCLIP:** UNet + VAE **frozen**. Condición: el `z_CLIP` predicho por el adapter.
+- **Entrada:** Vector de vóxeles crudos fMRI (Natural Scenes Dataset, sub01, máscara `nsdgeneral` de ~10k vóxeles).
+- **Adapter:** Regresión Ridge (sklearn $\alpha \approx 6e4$) o MLP nativo de 3-capas (ej. $10k \rightarrow 2048 \rightarrow 768$). Entrena $fMRI \rightarrow z_{CLIP ViT-L/14}$ con supervisión directa.
+- **SD 2.1 unCLIP:** UNet + VAE **frozen**. Condición: el `z_CLIP` de 768-d crudo predicho por el adapter.
 - **Sampler:** DDIM 50 pasos (inferencia rápida).
 
 ### 4.3 Trade-offs VRAM (RTX 4070 Ti 12 GB)
