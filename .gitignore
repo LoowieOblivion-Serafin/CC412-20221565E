@@ -96,3 +96,12 @@ CLIP-main/
 # ARTIFACTS (DEVELOPMENT ONLY)
 # ============================================================================
 .gemini/
+
+# Pivot NSD Ignore Rules
+features/
+*.tar.gz
+models_hf/
+output_*reconstructions/
+archive/
+._*
+__pycache__/
